@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Vendor Chat · ScubeG</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" />
+  </head>
+  <body class="bg-gray-50 font-[Inter]">
+    <div class="flex min-h-screen">
+      <aside class="w-64 bg-white border-r p-6 flex flex-col">
+        <h2 class="text-2xl font-bold text-teal-600">Dashboard</h2>
+        <p class="text-sm text-gray-500 mb-8">Vendor</p>
+        <nav class="space-y-4 flex-1">
+          <a href="/vendor-dashboard" class="flex items-center text-white bg-blue-600 px-3 py-2 rounded-md font-semibold">🏠 Home</a>
+          <a href="/vendor/products" class="flex items-center gap-2 text-gray-700 hover:text-blue-600">📦 Products</a>
+          <a href="/vendor/inventory" class="flex items-center gap-2 text-gray-700 hover:text-blue-600">📋 Inventory</a>
+          <a href="/vendor/orders" class="flex items-center gap-2 text-gray-700 hover:text-blue-600">🧾 Orders</a>
+          <a href="/vendor/profile" class="flex items-center gap-2 text-gray-700 hover:text-blue-600">👤 Profile</a>
+          <a href="/vendor/notifications" class="flex items-center gap-2 text-gray-700 hover:text-blue-600">🔔 Notifications</a>
+          <a href="/vendor/chat" class="flex items-center gap-2 text-gray-700 hover:text-blue-600">💬 Chat</a>
+        </nav>
+        <button id="logout-btn" class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg mt-auto">Log Out</button>
+      </aside>
+
+      <main class="flex-1 p-8">
+        <div class="mb-8 bg-gradient-to-r from-yellow-100 via-pink-100 to-blue-100 border border-yellow-300 p-6 rounded-2xl shadow-lg">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-2xl font-bold text-gray-800">💬 Vendor Chat</h2>
+          </div>
+          <p class="text-sm text-gray-600">Chat with buyers regarding orders and inventory</p>
+        </div>
+
+        <div class="grid grid-cols-12 gap-6">
+          <div class="col-span-4">
+            <div class="bg-white p-4 rounded-xl shadow">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="font-semibold">Conversations</h3>
+                <input id="search" placeholder="Search" class="border rounded px-2 py-1 text-sm" oninput="filterConversations()" />
+              </div>
+              <ul id="convList" class="space-y-3 max-h-[65vh] overflow-auto"></ul>
+            </div>
+          </div>
+
+          <div class="col-span-8">
+            <div class="bg-white rounded-xl shadow flex flex-col h-[70vh]">
+              <div id="chatHeader" class="p-4 border-b flex items-center gap-3">
+                <!-- dynamic header -->
+              </div>
+              <div id="chatBody" class="p-4 flex-1 overflow-auto space-y-3">
+                <div class="text-center text-gray-500 mt-12">Select a conversation from the left to start chatting</div>
+              </div>
+              <div id="chatFooter" class="p-4 border-t hidden">
+                <div class="flex gap-3">
+                  <input id="msgInput" class="flex-1 border rounded px-3 py-2" placeholder="Write a message..." onkeydown="handleKey(event)" />
+                  <button class="bg-blue-600 text-white px-4 py-2 rounded" onclick="sendMessage()">Send</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      let convs = [];
+      let active = null;
+      let socket = null;
+      let userId = null;
+
+      function parseJwt(token) {
+        try {
+          const base = token.split('.')[1];
+          const json = decodeURIComponent(atob(base).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+          }).join(''));
+          return JSON.parse(json);
+        } catch (e) { return {}; }
+      }
+
+      function renderList(list){
+        const ul = document.getElementById('convList'); ul.innerHTML='';
+        list.forEach(c=>{
+          const li = document.createElement('li'); li.className='flex items-center gap-3 p-2 rounded hover:bg-gray-50 cursor-pointer';
+          li.onclick = ()=>selectConv(c.id);
+          li.innerHTML = `
+            <div class="w-12 h-12 rounded-lg flex items-center justify-center text-white font-bold" style="background:${c.color || '#6b8cff'}">${(c.buyer||'U').charAt(0)}</div>
+            <div class="flex-1">
+              <div class="font-semibold">${c.buyer || 'Unknown'}</div>
+              <div class="text-sm text-gray-500">${c.last || ''}</div>
+            </div>
+            <div class="text-sm text-gray-400">${c.time || ''}</div>
+          `;
+          ul.appendChild(li);
+        })
+      }
+
+      async function selectConv(id){
+        active = convs.find(x=>String(x.id) === String(id));
+        renderList(convs);
+        await loadHistory(id);
+        renderChat();
+      }
+
+      function renderChat(){
+        const header = document.getElementById('chatHeader');
+        const body = document.getElementById('chatBody');
+        const footer = document.getElementById('chatFooter');
+        if(!active){ header.innerHTML=''; body.innerHTML='<div class="text-center text-gray-500 mt-12">Select a conversation from the left to start chatting</div>'; footer.classList.add('hidden'); return; }
+
+        header.innerHTML = `
+          <div class="w-12 h-12 rounded-lg flex items-center justify-center text-white font-bold" style="background:${active.color || '#6b8cff'}">${(active.buyer||'U').charAt(0)}</div>
+          <div>
+            <div class="font-semibold">${active.buyer || 'Unknown'}</div>
+            <div class="text-sm text-gray-500">Online</div>
+          </div>
+        `;
+
+        body.innerHTML = '';
+        (active.messages||[]).forEach((m,i)=>{
+          const d = document.createElement('div');
+          d.className = (m.from==='vendor')? 'text-right': 'text-left';
+          const inner = document.createElement('div');
+          inner.className = (m.from==='vendor')? 'inline-block bg-blue-600 text-white px-4 py-2 rounded-xl':'inline-block bg-gray-100 text-gray-800 px-4 py-2 rounded-xl';
+          let status = '';
+          if(m.from==='vendor' && i === (active.messages.length-1)) {
+            if(m.status === 'delivered') status = '<span class="ml-2 text-xs text-blue-300 align-bottom">delivered</span>';
+            else status = '<span class="ml-2 text-xs text-green-300 align-bottom">sent</span>';
+          }
+          inner.innerHTML = `${m.text}<div class="text-xs text-gray-300 mt-1">${m.time || ''} ${status}</div>`;
+          d.appendChild(inner);
+          body.appendChild(d);
+        });
+        body.scrollTop = body.scrollHeight;
+        footer.classList.remove('hidden');
+      }
+
+      async function loadConversations(token){
+        try{
+          const res = await fetch('/api/messages/conversations', { headers: { 'x-auth-token': token }});
+          const j = await res.json();
+          if(j.success){
+            convs = j.data.map(c => ({ id: c.partnerId, buyer: c.partnerName, last: c.lastMessage, time: new Date(c.time).toLocaleString(), messages: [], color: '#6b8cff' }));
+            renderList(convs);
+          }
+        } catch(e){ console.error('Failed to load conversations', e); }
+      }
+
+      async function loadHistory(otherId){
+        if(!otherId) return;
+        const token = localStorage.getItem('token');
+        try{
+          const res = await fetch(`/api/messages/history/${otherId}`, { headers: { 'x-auth-token': token }});
+          const j = await res.json();
+          if(j.success){
+            const msgs = j.data.map(m => ({ from: String(m.from) === String(userId) ? 'vendor' : 'buyer', text: m.text, time: new Date(m.createdAt).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}), _id: m._id }));
+            const conv = convs.find(c=>String(c.id)===String(otherId));
+            const partnerName = j.data.length ? (String(j.data[0].from) === String(otherId) ? j.data[0].fromName : j.data[0].toName) : undefined;
+            if(conv) { conv.messages = msgs; if(partnerName) conv.buyer = partnerName; } else convs.unshift({ id: otherId, buyer: partnerName || 'Unknown', messages: msgs, color: '#6b8cff' });
+          }
+        } catch(e){ console.error('Failed to load history', e); }
+      }
+
+      function appendIncoming(m){
+        // m: { from, to, text, createdAt, _id }
+        const from = String(m.from);
+        const to = String(m.to);
+        const partnerId = (from === userId) ? to : from;
+        let conv = convs.find(c=>String(c.id)===String(partnerId));
+        if(!conv){ conv = { id: partnerId, buyer: 'Unknown', messages: [], color: '#6b8cff' }; convs.unshift(conv); renderList(convs); }
+        conv.messages.push({ from: (String(m.from) === String(userId)) ? 'vendor' : 'buyer', text: m.text, time: new Date(m.createdAt).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}), _id: m._id });
+        // Emit delivered if I'm the recipient
+        if(String(m.to) === String(userId) && m._id) {
+          socket.emit('delivered', { messageId: m._id, from: m.from, to: m.to });
+        }
+        if(active && String(active.id)===String(conv.id)) renderChat();
+      }
+
+      // Listen for delivered event
+      if(socket) socket.off('delivered');
+      if(socket) socket.on('delivered', (data) => {
+        // data: { messageId, to }
+        // Find the message in the active conversation and update status
+        if(!active || !active.messages) return;
+        for(let i=active.messages.length-1; i>=0; --i){
+          let m = active.messages[i];
+          if(m._id === data.messageId) {
+            m.status = 'delivered';
+            break;
+          }
+        }
+        renderChat();
+      });
+
+      function sendMessage(){
+        const input = document.getElementById('msgInput');
+        const text = input.value.trim(); if(!text||!active) return;
+        socket.emit('private_message', { to: String(active.id), text });
+        input.value='';
+      }
+
+
+
+
+      function handleKey(e){ if(e.key==='Enter'){ e.preventDefault(); sendMessage(); } }
+
+      function filterConversations(){ const q=document.getElementById('search').value.toLowerCase(); renderList(convs.filter(c=> (c.buyer||'').toLowerCase().includes(q) || (c.last||'').toLowerCase().includes(q))); }
+
+  document.addEventListener('DOMContentLoaded', async ()=>{
+    const t = localStorage.getItem('token'); if(!t) return window.location.href='/login';
+    const payload = parseJwt(t);
+    userId = payload.user && payload.user.id;
+    socket = io({ auth: { token: t } });
+    socket.on('connect', ()=>{ console.log('socket connected', socket.id); });
+    socket.on('connect_error', (err)=>{ console.error('socket connect error', err); });
+    socket.on('private_message', (m) => { appendIncoming(m); });
+    await loadConversations(t);
+
+    // If ?buyer=<id> in URL, auto-select that conversation
+    function getQueryParam(name) {
+      const url = new URL(window.location.href);
+      return url.searchParams.get(name);
+    }
+    const buyerId = getQueryParam('buyer');
+    if (buyerId) {
+      // Try to find the conversation, else create a placeholder
+      let conv = convs.find(c => String(c.id) === String(buyerId));
+      if (!conv) {
+        // Fetch buyer name from API
+        let buyerName = 'Buyer';
+        try {
+          const res = await fetch(`/api/user/${buyerId}`, { headers: { 'x-auth-token': t } });
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.success && data.user && data.user.name) buyerName = data.user.name;
+          }
+        } catch (e) {}
+        conv = { id: buyerId, buyer: buyerName, messages: [], color: '#6b8cff' };
+        convs.unshift(conv);
+        renderList(convs);
+      }
+      await selectConv(buyerId);
+    }
+
+    function markActiveNav(){
+      const path = window.location.pathname || '/';
+      document.querySelectorAll('aside a').forEach(a=>{
+        a.classList.remove('text-white','bg-blue-600','px-3','py-2','rounded-md','font-semibold');
+      });
+      const match = document.querySelector(`aside a[href="${path}"]`);
+      if(match){
+        match.classList.add('text-white','bg-blue-600','px-3','py-2','rounded-md','font-semibold');
+      }
+    }
+    markActiveNav();
+    document.getElementById('logout-btn').addEventListener('click', ()=>{ localStorage.clear(); window.location.href='/login'; });
+  });
+    </script>
+  </body>
+</html>

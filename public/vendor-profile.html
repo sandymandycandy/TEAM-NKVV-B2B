@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Vendor Profile - Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" />
+  <link rel="stylesheet" href="/css/vendor-style.css">
+  <style>
+    /* Styles for the modal */
+    .modal {
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+      display: none;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background-color: #fefefe;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 400px;
+      text-align: center;
+    }
+    .modal-content.success {
+      background-color: #d1e7dd;
+      color: #0f5132;
+    }
+    .modal-content.error {
+      background-color: #f8d7da;
+      color: #842029;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 font-[Inter]">
+
+  <!-- Message Modal -->
+  <div id="message-modal" class="modal">
+    <div id="message-modal-content" class="modal-content">
+      <p id="modal-message"></p>
+      <button class="mt-4 bg-blue-600 text-white px-4 py-2 rounded-md" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+
+  <div class="flex min-h-screen">
+
+    <!-- Sidebar (Unified Style) -->
+    <aside class="w-64 bg-white border-r p-6 flex flex-col">
+      <h2 class="text-2xl font-bold text-teal-600">Dashboard</h2>
+      <p class="text-sm text-gray-500 mb-8">Vendor</p>
+      <nav class="space-y-4 flex-1">
+        <a href="/vendor-dashboard" aria-current="false">🏠 Home</a>
+        <a href="/vendor/products" aria-current="false">📦 My Products</a>
+        <a href="/vendor/inventory" aria-current="false">📥 Inventory</a>
+        <a href="/vendor/orders" aria-current="false">🛒 Orders</a>
+        <a href="/vendor/profile" class="active" aria-current="page">👤 Profile</a>
+        <a href="/vendor/notifications" aria-current="false">🔔 Notifications</a>
+        <a href="/vendor/chat" aria-current="false">💬 Chat</a>
+      </nav>
+      <button id="logout-btn" class="logout-btn mt-auto">Log Out</button>
+    </aside>
+    
+    <!-- Profile Section -->
+    <section class="flex-1 p-10">
+      <div class="bg-white p-8 rounded-xl shadow-md max-w-4xl mx-auto">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">👤 Vendor Profile</h2>
+
+        <!-- Profile Image Upload -->
+        <div class="flex flex-col items-center mb-6">
+          <div class="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-300 shadow-sm mb-2">
+            <img id="profileImagePreview" src="https://placehold.co/128x128/ccc/333?text=Profile" alt="Profile Image" class="w-full h-full object-cover" />
+          </div>
+          <label class="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md">
+            Upload Photo
+            <input type="file" name="profileImage" accept="image/*" class="hidden" onchange="previewProfileImage(event)" />
+          </label>
+        </div>
+    
+        <form id="vendorProfileForm" enctype="multipart/form-data" class="space-y-6">
+          <div class="grid grid-cols-2 gap-6">
+            <div>
+              <label class="block mb-1 text-sm font-medium text-gray-700">Full Name</label>
+              <input id = "fullName" type="text" name="fullName" required class="w-full border px-4 py-2 rounded-md" />
+            </div>
+        
+            <div>
+              <label class="block mb-1 text-sm font-medium text-gray-700">Phone Number</label>
+              <input id = "phone" type="tel" name="phone" required class="w-full border px-4 py-2 rounded-md" />
+            </div>
+
+            <div>
+              <label class="block mb-1 text-sm font-medium text-gray-700">Date of Birth</label>
+              <input id = "dob" type="date" name="dob" required class="w-full border px-4 py-2 rounded-md" />
+            </div>
+
+            <div>
+              <label class="block mb-1 text-sm font-medium text-gray-700">Email ID</label>
+              <input id = "email" type="email" name="email" required class="w-full border px-4 py-2 rounded-md" disabled />
+            </div>
+
+            <div class="col-span-2">
+              <label class="block mb-1 text-sm font-medium text-gray-700">Address</label>
+              <textarea id = "address" name="address" rows="3" class="w-full border px-4 py-2 rounded-md" required></textarea>
+            </div>
+
+            <div>
+              <label class="block mb-1 text-sm font-medium text-gray-700">PAN Card Number</label>
+              <input id = "pan" type="text" name="pan" class="w-full border px-4 py-2 rounded-md" />
+            </div>
+
+            <div>
+              <label class="block mb-1 text-sm font-medium text-gray-700">GST Number</label>
+              <input id = "gst" type="text" name="gst" class="w-full border px-4 py-2 rounded-md" />
+            </div>
+
+            <div>
+              <label class="block mb-1 text-sm font-medium text-gray-700">Upload FSSAI Certificate</label>
+              <input type="file" name="fssai" accept=".pdf,.jpg,.png" class="w-full" />
+            </div>
+
+            <div>
+              <label class="block mb-1 text-sm font-medium text-gray-700">Upload Trade License</label>
+              <input type="file" name="license" accept=".pdf,.jpg,.png" class="w-full" />
+            </div>
+
+            <div class="col-span-2">
+              <label class="block mb-1 text-sm font-medium text-gray-700">Aadhar Number</label>
+              <input id ="aadhar" type="text" name="aadhar" required class="w-full border px-4 py-2 rounded-md" />
+            </div>
+          </div>
+
+          <div class="flex justify-between mt-4">
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+              Save Profile
+            </button>
+            <button id="logoutBtn" type="button" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
+              Logout
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+  </div>
+
+  <!-- Profile Script -->
+  <script>
+    // Message Modal Functions
+    const modal = document.getElementById('message-modal');
+    const modalMessage = document.getElementById('modal-message');
+    const modalContent = document.getElementById('message-modal-content');
+
+    function showModal(message, type) {
+        modalMessage.textContent = message;
+        modalContent.className = 'modal-content ' + type;
+        modal.style.display = 'flex';
+    }
+
+    function closeModal() {
+        modal.style.display = 'none';
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        showModal('Please log in first.', 'error');
+        setTimeout(() => window.location.href = '/login', 2000);
+        return;
+      }
+
+      async function loadProfile() {
+        try {
+          const res = await fetch('/api/vendor/profile', {
+            headers: { 'x-auth-token': token }
+          });
+          const data = await res.json();
+          if (res.ok && data.success && data.data) {
+            const v = data.data;
+            document.getElementById('fullName').value = v.fullName || '';
+            document.getElementById('phone').value = v.phone || '';
+            document.getElementById('dob').value = v.dob ? v.dob.split('T')[0] : '';
+            document.getElementById('email').value = v.email || '';
+            document.getElementById('address').value = v.address || '';
+            document.getElementById('pan').value = v.pan || '';
+            document.getElementById('gst').value = v.gst || '';
+            document.getElementById('aadhar').value = v.aadhar || '';
+            if (v.profileImage) {
+                document.getElementById('profileImagePreview').src = v.profileImage;
+            }
+          } else {
+            showModal('Could not load profile details: ' + (data.message || 'Unknown error'), 'error');
+          }
+        } catch (err) {
+          console.error('Error loading profile:', err);
+          showModal('Error fetching profile details.', 'error');
+        }
+      }
+
+      // Load on page open
+      await loadProfile();
+
+      document.getElementById('vendorProfileForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(this); // Collect all form fields including files
+
+        try {
+          const res = await fetch('/api/vendor/profile', {
+            method: 'PUT',
+            headers: {
+              'x-auth-token': token
+            },
+            body: formData // Send FormData directly for file uploads
+          });
+          const result = await res.json();
+          if (res.ok && result.success) {
+            showModal('Profile updated successfully!', 'success');
+            loadProfile(); // reload to reflect changes
+          } else {
+            showModal('Failed to update profile: ' + (result.message || 'Unknown error'), 'error');
+          }
+        } catch (err) {
+          console.error('Update error:', err);
+          showModal('Error updating profile.', 'error');
+        }
+      });
+    });
+
+    // Profile image preview logic
+    function previewProfileImage(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                document.getElementById('profileImagePreview').src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      localStorage.removeItem("token");
+      localStorage.removeItem("userRole"); // Also clear user role
+      showModal("You have been logged out!", "success");
+      setTimeout(() => {
+          window.location.href = "/login";
+      }, 1500);
+    });
+    // Also wire the common logout button on the sidebar
+    (function(){
+      const b = document.getElementById('logout-btn');
+      if (b) b.addEventListener('click', ()=>{ localStorage.clear(); window.location.href = '/login'; });
+    })();
+  </script>
+</body>
+</html>

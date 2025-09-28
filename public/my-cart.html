@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>My Cart - VendorConnect</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" />
+  <style>
+    /* Styles for the modal */
+    .modal {
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+      display: none;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background-color: #fefefe;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 400px;
+      text-align: center;
+    }
+    .modal-content.success {
+      background-color: #d1e7dd;
+      color: #0f5132;
+    }
+    .modal-content.error {
+      background-color: #f8d7da;
+      color: #842029;
+    }
+    .modal-content .confirm-buttons {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 font-[Inter]">
+  <!-- Message/Confirm Modal -->
+  <div id="message-modal" class="modal">
+    <div id="message-modal-content" class="modal-content">
+      <p id="modal-message"></p>
+      <div id="modal-buttons">
+          <button class="mt-4 bg-blue-600 text-white px-4 py-2 rounded-md" onclick="closeModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex min-h-screen">
+    <aside class="w-64 bg-white border-r p-6">
+      <h2 class="text-2xl font-bold text-teal-600">Dashboard</h2>
+      <p class="text-sm text-gray-500 mb-8">Buyer</p>
+      <nav class="space-y-4">
+        <a href="/buyer-dashboard" class="flex items-center gap-2 text-gray-700 hover:text-blue-600">🏠 Home</a>
+        <a href="/buyer/products" class="flex items-center gap-2 text-gray-700 hover:text-blue-600">📦 Products Listing</a>
+        <a href="/buyer/cart" class="flex items-center text-white bg-blue-600 px-3 py-2 rounded-md font-semibold">🛒 My Cart</a>
+        <a href="/buyer/profile" class="flex items-center gap-2 text-gray-700 hover:text-blue-600">👤 Profile</a>
+        <a href="/buyer/history" class="flex items-center gap-2 text-gray-700 hover:text-blue-600">📥 History</a>
+        <a href="/buyer/chat" class="flex items-center gap-2 text-gray-700 hover:text-blue-600">💬 Chat</a>
+      </nav>
+    </aside>
+
+    <main class="flex-1 p-8">
+      <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">🛒 My Cart</h1>
+        <button id="checkout-btn"
+          class="bg-green-500 hover:bg-green-600 text-white font-semibold px-4 py-2 rounded-lg shadow">
+          Checkout
+        </button>
+      </div>
+
+      <div id="cart-container" class="space-y-6"></div>
+
+      <div id="cart-total" class="text-right text-xl font-semibold text-gray-800 mt-6 hidden">
+        Total: ₹0
+      </div>
+    </main>
+  </div>
+
+<script>
+  // Message Modal Functions
+  const modal = document.getElementById('message-modal');
+  const modalMessage = document.getElementById('modal-message');
+  const modalContent = document.getElementById('message-modal-content');
+  const modalButtons = document.getElementById('modal-buttons');
+
+  function showModal(message, type, onConfirm) {
+      modalMessage.textContent = message;
+      modalContent.className = 'modal-content ' + type;
+      
+      modalButtons.innerHTML = ''; // Clear existing buttons
+      if (onConfirm) {
+          modalButtons.className = 'confirm-buttons';
+          modalButtons.innerHTML = `
+              <button class="bg-red-500 text-white px-4 py-2 rounded" onclick="handleConfirm(true)">Yes</button>
+              <button class="bg-gray-400 text-white px-4 py-2 rounded" onclick="handleConfirm(false)">Cancel</button>
+          `;
+          window.confirmAction = onConfirm; // Store the callback
+      } else {
+          modalButtons.innerHTML = `<button class="mt-4 bg-blue-600 text-white px-4 py-2 rounded-md" onclick="closeModal()">Close</button>`;
+      }
+      
+      modal.style.display = 'flex';
+  }
+  
+  function closeModal() {
+      modal.style.display = 'none';
+  }
+
+  function handleConfirm(isConfirmed) {
+      closeModal();
+      if (window.confirmAction) {
+          window.confirmAction(isConfirmed);
+          window.confirmAction = null; // Clear the callback
+      }
+  }
+
+  function editQty(id) {
+    document.getElementById(`qty-label-${id}`).classList.add('hidden');
+    document.getElementById(`qty-edit-${id}`).classList.remove('hidden');
+  }
+
+  async function saveQty(id) {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      showModal('Please log in first.', 'error');
+      setTimeout(() => window.location.href = '/login', 2000);
+      return;
+    }
+
+    const newQty = parseInt(document.getElementById(`qty-input-${id}`).value, 10);
+    if (isNaN(newQty) || newQty <= 0) {
+      showModal('Please enter a valid quantity.', 'error');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/buyer/cart/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': token
+        },
+        body: JSON.stringify({ quantity: newQty })
+      });
+
+      const result = await response.json();
+      if (response.ok && result.success) {
+        await loadCart();
+      } else {
+        showModal('❌ Failed to update quantity: ' + (result.message || 'Unknown error'), 'error');
+      }
+    } catch (err) {
+      console.error('Error updating quantity:', err);
+      showModal('An unexpected error occurred.', 'error');
+    }
+  }
+
+  async function loadCart() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      window.location.href = '/login';
+      return;
+    }
+
+    const container = document.getElementById('cart-container');
+    const totalDiv = document.getElementById('cart-total');
+    try {
+      const res = await fetch('/api/buyer/cart', {
+        headers: { 'x-auth-token': token }
+      });
+      const data = await res.json();
+
+      if (res.ok && data.success && Array.isArray(data.data) && data.data.length > 0) {
+        container.innerHTML = '';
+        let total = 0;
+
+        data.data.forEach(item => {
+          if (!item.productId) {
+            console.warn(`Cart item ${item._id} has no linked product.`);
+            return;
+          }
+
+          const subtotal = item.productId.price * item.quantity;
+          total += subtotal;
+
+          const row = document.createElement('div');
+          row.className = 'flex justify-between items-start bg-white p-6 rounded-xl shadow relative';
+          row.innerHTML = `
+            <div>
+              <h3 class="text-lg font-semibold text-gray-800">${item.productId.name}</h3>
+              <p class="text-sm text-gray-500">Price: ₹${item.productId.price} / ${item.productId.unit}</p>
+              <p class="text-sm text-gray-700 mt-1">Subtotal: ₹${subtotal.toFixed(2)}</p>
+              <div class="mt-2">
+                <span class="text-sm text-gray-600" id="qty-label-${item._id}">
+                  Qty: <span id="qty-value-${item._id}">${item.quantity}</span>
+                  <button onclick="editQty('${item._id}')" class="ml-2 text-sm text-blue-600 hover:underline">Edit</button>
+                </span>
+                <div id="qty-edit-${item._id}" class="hidden mt-1">
+                  <input type="number" id="qty-input-${item._id}" value="${item.quantity}" class="border border-gray-300 rounded px-2 py-1 text-sm w-20" />
+                  <button onclick="saveQty('${item._id}')" class="ml-2 text-sm text-green-600 hover:underline">Save</button>
+                </div>
+              </div>
+              <button onclick="removeItem('${item._id}')" class="mt-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Remove</button>
+            </div>
+          `;
+          container.appendChild(row);
+        });
+
+        totalDiv.innerText = `Total: ₹${total.toFixed(2)}`;
+        totalDiv.classList.remove('hidden');
+      } else {
+        container.innerHTML = '<p class="text-gray-500">Your cart is empty.</p>';
+        totalDiv.classList.add('hidden');
+      }
+    } catch (err) {
+      console.error('Error loading cart:', err);
+      showModal('Error fetching cart data.', 'error');
+    }
+  }
+
+  async function removeItem(id) {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      showModal('Please log in first.', 'error');
+      setTimeout(() => window.location.href = '/login', 2000);
+      return;
+    }
+
+    showModal('Are you sure you want to remove this item?', 'confirm', async (confirmed) => {
+        if (confirmed) {
+            try {
+                const res = await fetch(`/api/buyer/cart/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'x-auth-token': token }
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    await loadCart();
+                } else {
+                    showModal('Failed to remove: ' + (data.message || 'Unknown error'), 'error');
+                }
+            } catch (err) {
+                console.error('Error removing item:', err);
+                showModal('An unexpected error occurred.', 'error');
+            }
+        }
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', loadCart);
+
+  document.getElementById('checkout-btn').addEventListener('click', () => {
+    const cartContainer = document.getElementById('cart-container');
+    if (cartContainer.children.length === 0 || cartContainer.textContent.trim() === 'Your cart is empty.') {
+      showModal('Your cart is empty. Please add items before checking out.', 'error');
+    } else {
+      window.location.href = '/buyer/checkout';
+    }
+  });
+
+  // Logout functionality for consistency, although not in original file
+  document.getElementById('logout-btn').addEventListener('click', () => {
+    localStorage.clear();
+    window.location.href = '/login';
+  });
+</script>
+
+</body>
+</html>

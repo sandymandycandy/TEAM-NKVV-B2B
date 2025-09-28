@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Vendor Products</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Your existing CSS for vendor dashboard */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f3f4f6;
+      display: flex;
+      min-height: 100vh;
+    }
+    aside {
+      width: 260px;
+      background: white;
+      box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+      height: 100vh;
+      padding: 32px 24px;
+    }
+    aside h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #0f766e;
+      margin-bottom: 4px;
+    }
+    aside p {
+      font-size: 0.875rem;
+      color: #6b7280;
+      margin-bottom: 32px;
+    }
+    nav a {
+      display: flex;
+      align-items: center;
+      font-size: 1rem;
+      color: #374151;
+      text-decoration: none;
+      margin-bottom: 16px;
+      padding: 8px;
+      border-radius: 6px;
+      transition: background 0.2s, color 0.2s;
+    }
+    nav a:hover {
+      background-color: #e5e7eb;
+      color: #2563eb;
+    }
+    nav a.active {
+      background-color: #2563eb;
+      color: white;
+      font-weight: 600;
+    }
+    nav span {
+      margin-right: 12px;
+    }
+    main {
+      flex: 1;
+      padding: 40px;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    .btn-primary {
+      background-color: #22c55e;
+      color: white;
+    }
+    .btn-primary:hover {
+      background-color: #16a34a;
+    }
+    .search-filter {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .search-filter input,
+    .search-filter select {
+      font-size: 1rem;
+      padding: 8px 12px;
+      width: 100%;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+    }
+    .search-filter input:focus,
+    .search-filter select:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 2px rgba(37,99,235,0.3);
+    }
+    .table-container {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    thead {
+      background-color: #f9fafb;
+    }
+    th, td {
+      padding: 16px;
+      text-align: left;
+      font-size: 0.875rem;
+      color: #374151;
+    }
+    tbody tr + tr {
+      border-top: 1px solid #e5e7eb;
+    }
+    .tag {
+      font-size: 0.75rem;
+      padding: 4px 8px;
+      border-radius: 9999px;
+      background: #f3f4f5;
+    }
+    .stock-high {
+      background: #22c55e;
+      color: white;
+    }
+    .stock-low {
+      background: #ef4444;
+      color: white;
+    }
+    .action-btns button {
+      background: transparent;
+      border: none;
+      font-size: 1rem;
+      cursor: pointer;
+      padding: 4px;
+    }
+    /* Styles for the modal */
+    .modal {
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+      display: none;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background-color: #fefefe;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 400px;
+      text-align: center;
+    }
+    .modal-content.success {
+      background-color: #d1e7dd;
+      color: #0f5132;
+    }
+    .modal-content.error {
+      background-color: #f8d7da;
+      color: #842029;
+    }
+    .modal-content .confirm-buttons {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Message/Confirm Modal -->
+  <div id="message-modal" class="modal">
+    <div id="message-modal-content" class="modal-content">
+      <p id="modal-message"></p>
+      <div id="modal-buttons">
+          <button class="mt-4 bg-blue-600 text-white px-4 py-2 rounded-md" onclick="closeModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <aside>
+    <h1>DASHBOARD</h1>
+    <p>Vendor</p>
+    <nav>
+      <a href="/vendor-dashboard"><span>🏠</span> Dashboard</a>
+      <a href="/vendor/products" class="active"><span>📦</span> My Products</a>
+      <a href="/vendor/inventory"><span>📥</span> Inventory</a>
+      <a href="/vendor/orders"><span>🛒</span> Orders</a>
+      <a href="/vendor/profile"><span>👤</span> Profile</a>
+      <a href="/vendor/notifications"><span>🔔</span> Notifications</a>
+      <a href="/vendor/chat"><span>💬</span> Chat</a>
+    </nav>
+  </aside>
+
+  <main>
+    <div class="header">
+      <div>
+        <h2>My Products</h2>
+        <p>Manage your product catalog</p>
+      </div>
+      <a href="/vendor/add-product" class="btn btn-primary">+ Add Product</a>
+    </div>
+
+    <div class="search-filter">
+      <input type="text" placeholder="Search products..." />
+      <select><option>All Categories</option></select>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="productsTableBody">
+          <!-- Products will be loaded here by JavaScript -->
+          <tr>
+            <td colspan="5" class="text-center text-gray-500 py-4">Loading products...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <script>
+    // Message Modal Functions
+    const modal = document.getElementById('message-modal');
+    const modalMessage = document.getElementById('modal-message');
+    const modalContent = document.getElementById('message-modal-content');
+    const modalButtons = document.getElementById('modal-buttons');
+
+    function showModal(message, type, onConfirm) {
+        modalMessage.textContent = message;
+        modalContent.className = 'modal-content ' + type;
+        
+        modalButtons.innerHTML = ''; // Clear existing buttons
+        if (onConfirm) {
+            modalButtons.className = 'confirm-buttons';
+            modalButtons.innerHTML = `
+                <button class="bg-red-500 text-white px-4 py-2 rounded" onclick="handleConfirm(true)">Yes</button>
+                <button class="bg-gray-400 text-white px-4 py-2 rounded" onclick="handleConfirm(false)">Cancel</button>
+            `;
+            window.confirmAction = onConfirm; // Store the callback
+        } else {
+            modalButtons.innerHTML = `<button class="mt-4 bg-blue-600 text-white px-4 py-2 rounded-md" onclick="closeModal()">Close</button>`;
+        }
+        
+        modal.style.display = 'flex';
+    }
+    
+    function closeModal() {
+        modal.style.display = 'none';
+    }
+
+    function handleConfirm(isConfirmed) {
+        closeModal();
+        if (window.confirmAction) {
+            window.confirmAction(isConfirmed);
+            window.confirmAction = null; // Clear the callback
+        }
+    }
+
+    // Function to fetch and display products
+    async function fetchAndDisplayProducts() {
+      const productsTableBody = document.getElementById('productsTableBody');
+      productsTableBody.innerHTML = '<tr><td colspan="5" class="text-center text-gray-500 py-4">Loading products...</td></tr>'; // Show loading
+
+      // Get the token from localStorage
+      const token = localStorage.getItem('token');
+      if (!token) {
+        productsTableBody.innerHTML = '<tr><td colspan="5" class="text-center text-red-500 py-4">Please log in to view your products. Redirecting...</td></tr>';
+        // Redirect to login page if no token is found
+        setTimeout(() => {
+          window.location.href = '/login'; // Assuming '/login' is your login page
+        }, 2000); // Redirect after 2 seconds
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/vendor/products', {
+          method: 'GET',
+          headers: {
+            'x-auth-token': token
+          }
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          productsTableBody.innerHTML = ''; // Clear loading message
+
+          if (result.data.length === 0) {
+            productsTableBody.innerHTML = '<tr><td colspan="5" class="text-center text-gray-500 py-4">No products found. Add some!</td></tr>';
+            return;
+          }
+
+          result.data.forEach(product => {
+            const row = document.createElement('tr');
+            const stockClass = product.stock > 20 ? 'stock-high' : 'stock-low'; // Example threshold
+            const stockText = product.stock > 0 ? `${product.stock} units` : 'Out of Stock';
+
+            row.innerHTML = `
+              <td>
+                <div style="font-weight:600;">${product.name}</div>
+                <div style="font-size:0.875rem; color:#6b7280;">${product.description}</div>
+              </td>
+              <td><span class="tag">${product.category}</span></td>
+              <td>₹${product.price}/${product.unit}</td> <!-- Display unit -->
+              <td><span class="tag ${stockClass}">${stockText}</span></td>
+              <td class="action-btns">
+                 <button onclick="editProduct('${product._id}')">✏️</button>
+                 <button onclick="deleteProduct('${product._id}')" class="delete-btn">🗑️</button>
+              </td>
+            `;
+            productsTableBody.appendChild(row);
+          });
+        } else {
+          productsTableBody.innerHTML = `<tr><td colspan="5" class="text-center text-red-500 py-4">Error loading products: ${result.message || result.error || 'Unknown error'}</td></tr>`;
+          console.error('Failed to fetch products:', result.message || result.error);
+          // Handle authentication/authorization errors
+          if (response.status === 401 || response.status === 403) {
+            localStorage.clear(); // Clear invalid token
+            showModal('Your session has expired or you are not authorized. Please log in again.', 'error');
+            setTimeout(() => {
+                window.location.href = '/login'; // Redirect to login page
+            }, 2000);
+          }
+        }
+      } catch (error) {
+        productsTableBody.innerHTML = `<tr><td colspan="5" class="text-center text-red-500 py-4">Network error. Could not load products.</td></tr>`;
+        console.error('Network error fetching products:', error);
+        showModal('Network error. Could not load products.', 'error');
+      }
+    }
+
+    // Call the function to load products when the page loads
+    document.addEventListener('DOMContentLoaded', fetchAndDisplayProducts);
+
+    function editProduct(productId) {
+        localStorage.setItem('editProductId', productId);
+        window.location.href = '/vendor/add-product'; // Navigate to the add/edit product page
+    }
+
+    async function deleteProduct(productId) {
+        showModal('Are you sure you want to delete this product?', 'confirm', async (confirmed) => {
+            if (confirmed) {
+                const token = localStorage.getItem('token');
+                try {
+                    const response = await fetch(`/api/vendor/products/${productId}`, {
+                        method: 'DELETE',
+                        headers: { 'x-auth-token': token }
+                    });
+
+                    const result = await response.json();
+                    if (response.ok && result.success) {
+                        showModal('Product deleted successfully!', 'success');
+                        // Refresh list after deletion
+                        fetchAndDisplayProducts();
+                    } else {
+                        showModal('Failed to delete product: ' + (result.message || 'Unknown error'), 'error');
+                    }
+                } catch (err) {
+                    console.error('Delete error:', err);
+                    showModal('An error occurred while deleting.', 'error');
+                }
+            }
+        });
+    }
+  </script>
+
+</body>
+</html>

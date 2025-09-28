@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Vendor Orders</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/vendor-style.css">
+  <style>
+    /* Styles for the modal */
+    .modal {
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+      display: none;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background-color: #fefefe;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 400px;
+      text-align: center;
+    }
+    .modal-content.error {
+      background-color: #f8d7da;
+      color: #842029;
+    }
+    .modal-content.success {
+      background-color: #d1e7dd;
+      color: #0f5132;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 flex">
+
+  <!-- Sidebar -->
+  <aside class="w-64 bg-white p-6 shadow-md flex flex-col">
+    <h1 class="text-2xl font-bold text-teal-600">VENDOR</h1>
+    <p class="text-sm text-gray-500 mb-8">Dashboard</p>
+    <nav class="space-y-2 flex-1">
+      <a href="/vendor-dashboard" aria-current="false">🏠 Home</a>
+      <a href="/vendor/products" aria-current="false">📦 My Products</a>
+      <a href="/vendor/inventory" aria-current="false">📊 Inventory</a>
+      <a href="/vendor/orders" class="active" aria-current="page">📝 Orders</a>
+      <a href="/vendor/profile" aria-current="false">👤 Profile</a>
+      <a href="/vendor/notifications" aria-current="false">🔔 Notifications</a>
+      <a href="/vendor/chat" aria-current="false">💬 Chat</a>
+    </nav>
+    <button id="logout-btn" class="logout-btn w-full mt-4">Log Out</button>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 p-8">
+    <h2 class="text-2xl font-bold mb-4">Order History</h2>
+    <p class="text-gray-600 mb-6">Track and manage your orders</p>
+
+    <div class="bg-white shadow-md rounded-lg overflow-hidden">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="orders-table-body" class="bg-white divide-y divide-gray-200">
+          <!-- Orders will be injected here -->
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- Message Modal -->
+  <div id="message-modal" class="modal">
+    <div id="message-modal-content" class="modal-content">
+      <p id="modal-message"></p>
+      <button class="mt-4 bg-blue-600 text-white px-4 py-2 rounded-md" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+
+  <script>
+    const modal = document.getElementById('message-modal');
+    const modalMessage = document.getElementById('modal-message');
+    const modalContent = document.getElementById('message-modal-content');
+
+    function showModal(message, type) {
+      modalMessage.textContent = message;
+      modalContent.className = 'modal-content ' + type;
+      modal.style.display = 'flex';
+    }
+    
+    function closeModal() {
+      modal.style.display = 'none';
+    }
+
+    async function loadOrders() {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        window.location.href = '/login';
+        return;
+      }
+      const tableBody = document.getElementById('orders-table-body');
+      tableBody.innerHTML = '<tr><td colspan="6" class="text-center p-4">Loading orders...</td></tr>';
+
+      try {
+        const response = await fetch('/api/vendor/orders', {
+          headers: { 'x-auth-token': token }
+        });
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          const orders = result.orders;
+          tableBody.innerHTML = ''; 
+
+          if (orders.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="6" class="text-center p-4 text-gray-500">No orders found.</td></tr>';
+            return;
+          }
+
+          orders.forEach(order => {
+            // --- THIS IS THE FIX: Safely handles missing customer data ---
+            const customerDisplay = order.buyerId ? (order.buyerId.name || order.buyerId.email) : 'N/A';
+            const orderDate = new Date(order.orderDate).toLocaleDateString();
+            
+            const statusClasses = {
+                'Pending': 'bg-yellow-100 text-yellow-800',
+                'Delivered': 'bg-green-100 text-green-800',
+                'Cancelled': 'bg-red-100 text-red-800',
+                'Processing': 'bg-blue-100 text-blue-800',
+                'Shipped': 'bg-indigo-100 text-indigo-800'
+            };
+            const statusClass = statusClasses[order.status] || 'bg-gray-100 text-gray-800';
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${order.orderIdDisplay || 'N/A'}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${customerDisplay}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${orderDate}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₹${(order.totalAmount || 0).toFixed(2)}</td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
+                  ${order.status}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                ${order.status === 'Pending' ? `
+                  <button onclick="markAsDelivered('${order._id}')" class="text-green-600 hover:text-green-900 mr-4">Deliver</button>
+                  <button onclick="markAsCancelled('${order._id}')" class="text-red-600 hover:text-red-900">Cancel</button>
+                ` : '-'}
+              </td>
+            `;
+            tableBody.appendChild(row);
+          });
+        } else {
+          tableBody.innerHTML = `<tr><td colspan="6" class="text-center p-4 text-red-500">Failed to load orders: ${result.message}</td></tr>`;
+        }
+      } catch (err) {
+        console.error('Fatal error in loadOrders:', err);
+        tableBody.innerHTML = `<tr><td colspan="6" class="text-center p-4 text-red-500">A critical error occurred. Please check the console.</td></tr>`;
+        showModal('Error fetching orders.', 'error');
+      }
+    }
+
+    async function markAsDelivered(orderId) {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+        try {
+            const res = await fetch(`/api/vendor/orders/${orderId}/delivered`, {
+                method: 'PUT',
+                headers: { 'x-auth-token': token }
+            });
+            const result = await res.json();
+            if (res.ok && result.success) {
+                showModal('Order marked as delivered.', 'success');
+                loadOrders();
+            } else {
+                showModal('Failed to update order: ' + result.message, 'error');
+            }
+        } catch (err) {
+            showModal('Server communication error.', 'error');
+        }
+    }
+
+    async function markAsCancelled(orderId) {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+        try {
+            const res = await fetch(`/api/vendor/orders/${orderId}/cancelled`, {
+                method: 'PUT',
+                headers: { 'x-auth-token': token }
+            });
+            const result = await res.json();
+            if (res.ok && result.success) {
+                showModal('Order marked as cancelled.', 'success');
+                loadOrders();
+            } else {
+                showModal('Failed to update order: ' + result.message, 'error');
+            }
+        } catch (err) {
+            showModal('Server communication error.', 'error');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadOrders);
+    
+    document.getElementById('logout-btn').addEventListener('click', () => {
+        localStorage.clear();
+        window.location.href = '/login';
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Vendor Notifications - Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/vendor-style.css">
+  <style>
+    /* Styles for the modal */
+    .modal {
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+      display: none;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background-color: #fefefe;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 400px;
+      text-align: center;
+    }
+    .modal-content.success {
+      background-color: #d1e7dd;
+      color: #0f5132;
+    }
+    .modal-content.error {
+      background-color: #f8d7da;
+      color: #842029;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 flex">
+
+  <!-- Message Modal -->
+  <div id="message-modal" class="modal">
+    <div id="message-modal-content" class="modal-content">
+      <p id="modal-message"></p>
+      <button class="mt-4 bg-blue-600 text-white px-4 py-2 rounded-md" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <aside class="w-64 h-screen bg-white shadow-sm border-r flex flex-col p-6">
+    <div class="p-0 mb-2">
+      <h1 class="text-2xl font-bold text-green-600">Dashboard</h1>
+      <p class="text-sm text-gray-500">Vendor</p>
+    </div>
+    <nav class="mt-4 space-y-1 flex-1">
+      <a href="/vendor-dashboard" aria-current="false">🏠 Home</a>
+      <a href="/vendor/products" aria-current="false">📦 My Products</a>
+      <a href="/vendor/inventory" aria-current="false">📥 Inventory</a>
+      <a href="/vendor/orders" aria-current="false">🛒 Orders</a>
+      <a href="/vendor/profile" aria-current="false">👤 Profile</a>
+      <a href="/vendor/notifications" class="active" aria-current="page">🔔 Notifications <span id="new-notification-dot" class="ml-2 w-2.5 h-2.5 bg-red-600 rounded-full"></span></a>
+      <a href="/vendor/chat" aria-current="false">💬 Chat</a>
+    </nav>
+    <button id="logout-btn" class="logout-btn mt-auto">Log Out</button>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 p-8 overflow-y-auto">
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <!-- Header -->
+      <h2 class="text-3xl font-bold text-gray-800 mb-6">🔔 Notifications</h2>
+
+      <!-- New Order Notifications -->
+      <h3 class="text-xl font-bold text-gray-700 mb-4">New Orders</h3>
+      <div id="new-order-notifications" class="space-y-6 mb-8">
+        <!-- New order notifications will be dynamically loaded here -->
+      </div>
+
+      <!-- System Notifications -->
+      <h3 class="text-xl font-bold text-gray-700 mb-4">System Alerts</h3>
+      <div id="system-notifications" class="mt-10 space-y-4">
+        <!-- System notifications will be dynamically loaded here -->
+      </div>
+
+      <!-- Footer -->
+      <p class="text-sm text-gray-400 text-center mt-6" id="last-updated-text">Last updated a moment ago</p>
+    </div>
+  </main>
+
+<script>
+  // Message Modal Functions
+  const modal = document.getElementById('message-modal');
+  const modalMessage = document.getElementById('modal-message');
+  const modalContent = document.getElementById('message-modal-content');
+
+  function showModal(message, type) {
+      modalMessage.textContent = message;
+      modalContent.className = 'modal-content ' + type;
+      modal.style.display = 'flex';
+  }
+
+  function closeModal() {
+      modal.style.display = 'none';
+  }
+
+  async function loadNotifications() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      showModal('Please log in first.', 'error');
+      setTimeout(() => window.location.href = '/login', 2000);
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/vendor/notifications', {
+        headers: { 'x-auth-token': token }
+      });
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        const newOrderContainer = document.getElementById('new-order-notifications');
+        const systemNotificationContainer = document.getElementById('system-notifications');
+        
+        newOrderContainer.innerHTML = ''; // Clear existing content
+        systemNotificationContainer.innerHTML = ''; // Clear existing content
+
+        let hasNewOrders = false;
+
+        result.data.forEach(notification => {
+          if (notification.type === 'new_order') {
+            hasNewOrders = true;
+            const notificationDiv = document.createElement('div');
+            notificationDiv.className = 'bg-white p-5 rounded-lg shadow flex justify-between items-start border-l-4 border-green-500 mb-6';
+            notificationDiv.innerHTML = `
+              <div class="flex items-start gap-4">
+                <img src="${notification.image || 'https://via.placeholder.com/128'}" alt="Buyer Photo" class="w-14 h-14 rounded-full object-cover" />
+                <div>
+                  <p class="text-gray-700 font-semibold">${notification.buyerName || 'Unknown Buyer'} <span class="text-sm text-gray-400">(${notification.buyerEmail || 'N/A'})</span></p>
+                  <p class="text-sm text-gray-600 mt-1">Order <strong>#${notification.orderId}</strong>.</p>
+                  <p class="text-xs text-gray-400 mt-1">📞 ${notification.buyerPhone || 'N/A'} • 🕒 ${new Date(notification.time).toLocaleTimeString()}</p>
+                  <p class="text-xs text-gray-400">📍 ${notification.buyerAddress || 'N/A'}</p>
+                </div>
+              </div>
+            `;
+            newOrderContainer.appendChild(notificationDiv);
+          } else { // Handle other notification types
+            const notificationDiv = document.createElement('div');
+            let borderColorClass = 'border-blue-500'; // Default for system alerts
+            if (notification.type === 'offer_reminder') {
+              borderColorClass = 'border-yellow-500';
+            }
+            notificationDiv.className = `bg-white p-4 rounded-lg shadow border-l-4 ${borderColorClass}`;
+            notificationDiv.innerHTML = `
+              <p class="text-sm text-gray-600">
+                <strong>${notification.type === 'system_alert' ? 'Message:' : 'Offer Reminder:'}</strong> ${notification.message}
+                <span class="text-gray-400 text-xs float-right">${new Date(notification.createdAt).toLocaleTimeString()}</span>
+              </p>
+            `;
+            systemNotificationContainer.appendChild(notificationDiv);
+          }
+        });
+
+        // Show/hide red dots based on new orders
+        const newNotificationDot = document.getElementById('new-notification-dot');
+        const newNotificationSolidDot = document.getElementById('new-notification-solid-dot');
+        if (hasNewOrders) {
+            newNotificationDot.classList.remove('hidden');
+            newNotificationSolidDot.classList.remove('hidden');
+        } else {
+            newNotificationDot.classList.add('hidden');
+            newNotificationSolidDot.classList.add('hidden');
+        }
+
+        document.getElementById('last-updated-text').textContent = `Last updated at ${new Date().toLocaleTimeString()}`;
+
+        if (!hasNewOrders && systemNotificationContainer.innerHTML === '') {
+            newOrderContainer.innerHTML = '<p class="text-gray-600">No new notifications.</p>';
+        }
+
+      } else {
+        showModal('Failed to load notifications: ' + (result.message || 'Unknown error'), 'error');
+      }
+    } catch (err) {
+      console.error('Error loading notifications:', err);
+      showModal('Error fetching notifications.', 'error');
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', loadNotifications);
+  // Wire logout button
+  (function(){
+    const b = document.getElementById('logout-btn');
+    if (b) b.addEventListener('click', ()=>{ localStorage.clear(); window.location.href = '/login'; });
+  })();
+</script>
+
+</body>
+</html>

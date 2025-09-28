@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ScubeG - Sign Up</title>
+  <link href="https://fonts.googleapis.com/css2?family=Michroma&display=swap" rel="stylesheet" />
+  <style>
+    /* ... (Your CSS code remains unchanged) ... */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Michroma', sans-serif;
+      background: url('https://uploads.onecompiler.io/43rrvywxn/43rrvxhs2/Screenshot_25-7-2025_134332_www.designevo.com.jpeg') no-repeat center center fixed;
+      background-size: cover;
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .portal {
+      backdrop-filter: blur(12px);
+      background: rgba(0, 0, 0, 0.85);
+      padding: 40px;
+      border-radius: 24px;
+      width: 90%;
+      max-width: 400px;
+      color: white;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .logo {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+
+    .logo img {
+      width: 64px;
+      height: 64px;
+    }
+
+    h2 {
+      text-align: center;
+      font-size: 24px;
+      margin-bottom: 24px;
+      font-weight: bold;
+    }
+
+    h2 span {
+      color: #4ea1f3;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 10px 16px;
+      border-radius: 6px;
+      background-color: rgba(30, 41, 59, 0.8);
+      border: 1px solid #374151;
+      color: white;
+      margin-bottom: 16px;
+    }
+
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: #4ea1f3;
+      box-shadow: 0 0 0 2px #4ea1f3;
+    }
+
+    button {
+      background-color: #0066cc;
+      color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #004c99;
+    }
+
+    .signup-footer {
+      text-align: center;
+      font-size: 14px;
+      margin-top: 24px;
+    }
+
+    .signup-footer a {
+      color: #4ea1f3;
+      text-decoration: none;
+    }
+
+    .signup-footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Styles for the message box */
+    #message-box {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 6px;
+      text-align: center;
+      font-size: 14px;
+      display: none; /* Initially hidden */
+    }
+    #message-box.success {
+      background-color: #d1e7dd;
+      color: #0f5132;
+    }
+    #message-box.error {
+      background-color: #f8d7da;
+      color: #842029;
+    }
+  </style>
+</head>
+<body>
+  <div class="portal">
+    <div class="logo">
+      <img src="https://uploads.onecompiler.io/43rrvywxn/43rrvxhs2/Screenshot_25-7-2025_135128_www.designevo.com.jpeg" alt="ScubeG Logo" />
+    </div>
+    <h2>Create Your <span>ScubeG</span> Account</h2>
+
+    <form id="signupform">
+      <label for="fullname">Full Name</label>
+      <input type="text" id="fullname" placeholder="John Doe" required>
+
+      <label for="email">Email</label>
+      <input type="email" id="email" placeholder="you@example.com" required>
+
+      <label for="password">Password</label>
+      <input type="password" id="password" placeholder="••••••••" required>
+
+      <label for="confirm-password">Confirm Password</label>
+      <input type="password" id="confirm-password" placeholder="••••••••" required>
+
+      <label for="role">Select Role</label>
+      <select id="role" required>
+        <option value="" disabled selected>Select role</option>
+        <option value="vendor">Vendor</option>
+        <option value="buyer">Buyer</option>
+      </select>
+
+      <button type="submit">Sign Up</button>
+    </form>
+    
+    <!-- Message box to display success or error messages -->
+    <div id="message-box"></div>
+
+    <p class="signup-footer">
+      Already have an account? <a href="/login">Sign In</a>
+    </p>
+  </div>
+
+  <script>
+    document.getElementById('signupform').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const name = document.getElementById('fullname').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
+      const role = document.getElementById('role').value;
+      const messageBox = document.getElementById('message-box');
+
+      // Function to show a message in the message box
+      function showMessage(message, type) {
+          messageBox.textContent = message;
+          messageBox.className = type;
+          messageBox.style.display = 'block';
+      }
+
+      // Hide message box on new submission
+      messageBox.style.display = 'none';
+
+      if (password !== confirmPassword) {
+        showMessage("Passwords do not match.", "error");
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password, role })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          // Display success message and then redirect
+          showMessage(data.message, "success");
+          setTimeout(() => {
+            window.location.href = '/login';
+          }, 2000); // Redirect after 2 seconds
+        } else {
+          showMessage(data.message || 'Signup error: Unknown error', "error");
+        }
+      } catch (err) {
+        console.error('Signup JS error:', err);
+        showMessage('Something went wrong. Please try again.', "error");
+      }
+    });
+  </script>
+</body>
+</html>

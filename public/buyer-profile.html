@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Buyer Profile - Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" />
+  <style>
+    /* Styles for the modal */
+    .modal {
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+      display: none;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background-color: #fefefe;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 400px;
+      text-align: center;
+    }
+    .modal-content.success {
+      background-color: #d1e7dd;
+      color: #0f5132;
+    }
+    .modal-content.error {
+      background-color: #f8d7da;
+      color: #842029;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 font-[Inter]">
+  <!-- Message Modal -->
+  <div id="message-modal" class="modal">
+    <div id="message-modal-content" class="modal-content">
+      <p id="modal-message"></p>
+      <button class="mt-4 bg-blue-600 text-white px-4 py-2 rounded-md" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+
+  <div class="flex min-h-screen">
+
+    <aside class="w-64 bg-white border-r p-6">
+      <h2 class="text-2xl font-bold text-teal-600">Dashboard</h2>
+      <p class="text-sm text-gray-500 mb-8">Buyer</p>
+      <nav class="space-y-4">
+        <a href="/buyer-dashboard" class="flex items-center gap-2 text-gray-700 hover:text-blue-600">🏠 Home</a>
+        <a href="/buyer/products" class="flex items-center gap-2 text-gray-700 hover:text-blue-600">📦 Products</a>
+        <a href="/buyer/cart" class="flex items-center gap-2 text-gray-700 hover:text-blue-600">🛒 My Cart</a>
+        <a href="/buyer/profile" class="flex items-center gap-2 text-white bg-blue-600 px-3 py-2 rounded-md font-semibold">👤 Profile</a>
+        <a href="/buyer/history" class="flex items-center gap-2 text-gray-700 hover:text-blue-600">📥 History</a>
+        <a href="/buyer/chat" class="flex items-center gap-2 text-gray-700 hover:text-blue-600">💬 Chat</a>
+      </nav>
+    </aside>
+    
+    <section class="flex-1 p-10">
+      <div class="bg-white p-8 rounded-xl shadow-md max-w-4xl mx-auto">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">👤 Buyer Profile</h2>
+
+        <div class="flex flex-col items-center mb-6">
+          <div class="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-300 shadow-sm mb-2">
+            <img id="profileImagePreview" src="https://placehold.co/128x128/ccc/333?text=Profile" alt="Profile Image" class="w-full h-full object-cover" />
+          </div>
+          <label class="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md">
+            Upload Photo
+            <input type="file" name="profileImage" accept="image/*" class="hidden" onchange="previewProfileImage(event)" />
+          </label>
+        </div>
+    
+        <form id="buyerProfileForm" enctype="multipart/form-data" class="space-y-6">
+          <div class="grid grid-cols-2 gap-6">
+            <div>
+              <label class="block mb-1 text-sm font-medium text-gray-700">Full Name</label>
+              <input id = "fullName" type="text" name="fullName" required class="w-full border px-4 py-2 rounded-md" />
+            </div>
+        
+            <div>
+              <label class="block mb-1 text-sm font-medium text-gray-700">Phone Number</label>
+              <input id = "phone" type="tel" name="phone" required class="w-full border px-4 py-2 rounded-md" />
+            </div>
+
+            <div>
+              <label class="block mb-1 text-sm font-medium text-gray-700">Date of Birth</label>
+              <input id = "dob" type="date" name="dob" required class="w-full border px-4 py-2 rounded-md" />
+            </div>
+
+            <div>
+              <label class="block mb-1 text-sm font-medium text-gray-700">Email ID</label>
+              <input id = "email" type="email" name="email" required class="w-full border px-4 py-2 rounded-md" disabled />
+            </div>
+
+            <div class="col-span-2">
+              <label class="block mb-1 text-sm font-medium text-gray-700">Address</label>
+              <textarea id  = "address" name="address" rows="3" class="w-full border px-4 py-2 rounded-md" required></textarea>
+            </div>
+
+            <div>
+              <label class="block mb-1 text-sm font-medium text-gray-700">PAN Card Number</label>
+              <input id = "pan" type="text" name="pan" class="w-full border px-4 py-2 rounded-md" />
+            </div>
+
+            <div>
+              <label class="block mb-1 text-sm font-medium text-gray-700">GST Number</label>
+              <input id = "gst" type="text" name="gst" class="w-full border px-4 py-2 rounded-md" />
+            </div>
+
+            <div>
+              <label class="block mb-1 text-sm font-medium text-gray-700">Upload FSSAI Certificate</label>
+              <input id = "fssai" type="file" name="fssai" accept=".pdf,.jpg,.png" class="w-full" />
+            </div>
+
+            <div>
+              <label class="block mb-1 text-sm font-medium text-gray-700">Upload Trade License</label>
+              <input id = "license" type="file" name="license" accept=".pdf,.jpg,.png" class="w-full" />
+            </div>
+
+            <div class="col-span-2">
+              <label class="block mb-1 text-sm font-medium text-gray-700">Aadhar Number</label>
+              <input id = "aadhar" type="text" name="aadhar" required class="w-full border px-4 py-2 rounded-md" />
+            </div>
+          </div>
+
+          <div class="flex justify-between mt-4">
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+              Save Profile
+            </button>
+            <button id="logoutBtn" type="button" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
+              Logout
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+  </div>
+
+ <script>
+  // Message Modal Functions
+  const modal = document.getElementById('message-modal');
+  const modalMessage = document.getElementById('modal-message');
+  const modalContent = document.getElementById('message-modal-content');
+
+  function showModal(message, type) {
+      modalMessage.textContent = message;
+      modalContent.className = 'modal-content ' + type;
+      modal.style.display = 'flex';
+  }
+
+  function closeModal() {
+      modal.style.display = 'none';
+  }
+
+  // Handle form submission (update profile)
+  document.getElementById("buyerProfileForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    const token = localStorage.getItem("token");
+    if (!token) {
+      showModal('Please log in first.', 'error');
+      setTimeout(() => window.location.href = '/login', 2000);
+      return;
+    }
+
+    const data = {
+      fullName: document.getElementById("fullName").value,
+      phone: document.getElementById("phone").value,
+      dob: document.getElementById("dob").value,
+      email: document.getElementById("email").value,
+      address: document.getElementById("address").value,
+      pan: document.getElementById("pan").value,
+      gst: document.getElementById("gst").value,
+      aadhar: document.getElementById("aadhar").value
+    };
+
+    try {
+      const res = await fetch("/api/buyer/profile", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "x-auth-token": token
+        },
+        body: JSON.stringify(data),
+      });
+
+      const result = await res.json();
+      if (result.success) {
+        showModal("✅ Profile updated successfully!", "success");
+        await loadProfile(); // reload details after update
+      } else {
+        showModal("❌ Failed to update profile: " + (result.message || "Unknown error"), "error");
+      }
+    } catch (err) {
+      console.error("Update error:", err);
+      showModal("⚠ Something went wrong!", "error");
+    }
+  });
+
+  // Load profile details when page opens
+  async function loadProfile() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      // This is handled by the initial check, so this alert is for subsequent checks
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/buyer/profile', {
+        headers: { 'x-auth-token': token }
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        const buyer = data.data;
+        document.getElementById('fullName').value = buyer.fullName || '';
+        document.getElementById('phone').value = buyer.phone || '';
+        document.getElementById('dob').value = buyer.dob ? buyer.dob.split('T')[0] : '';
+        document.getElementById('email').value = buyer.email || '';
+        document.getElementById('address').value = buyer.address || '';
+        document.getElementById('pan').value = buyer.pan || '';
+        document.getElementById('gst').value = buyer.gst || '';
+        document.getElementById('aadhar').value = buyer.aadhar || '';
+      } else {
+        showModal('Could not load profile details', 'error');
+      }
+    } catch (err) {
+      console.error('Error loading profile:', err);
+      showModal('Error fetching profile details.', 'error');
+    }
+  }
+
+  // Preview profile image (no backend implementation for now)
+  function previewProfileImage(event) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        document.getElementById('profileImagePreview').src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  // Call loadProfile on page load
+  document.addEventListener('DOMContentLoaded', async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        window.location.href = '/login';
+        return;
+    }
+    await loadProfile();
+  });
+
+
+  document.getElementById("logoutBtn").addEventListener("click", () => {
+    localStorage.removeItem("token"); // clear stored token
+    showModal("You have been logged out!", "success");
+    setTimeout(() => {
+        window.location.href = "/login"; // redirect to login page
+    }, 1500);
+  });
+
+</script>
+</body>
+</html>

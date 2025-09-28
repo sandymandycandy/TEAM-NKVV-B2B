@@ -1,0 +1,29 @@
+/* Shared vendor styles to unify UI/UX across vendor pages */
+* { box-sizing: border-box; }
+body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; color: #111827; }
+aside { width: 260px; background: #fff; box-shadow: 2px 0 8px rgba(0,0,0,0.04); height: 100vh; padding: 28px 20px; }
+aside h2, aside h1 { color: #0f766e; font-weight: 700; margin-bottom: 6px; }
+aside p { color: #6b7280; margin-bottom: 18px; }
+nav a { display:flex; align-items:center; gap:10px; padding:10px; color:#374151; border-radius:8px; text-decoration:none; transition:all .12s; }
+nav a:hover { background:#f3f4f6; color:#0ea5a1; }
+nav a.active, nav a[aria-current='page'] { background:#2563eb; color:#fff; font-weight:700; }
+main { flex:1; padding:36px; }
+.card-grid { display:grid; grid-template-columns: repeat(4, 1fr); gap:18px; margin-bottom:22px; }
+.card { background:#fff; padding:20px; border-radius:12px; box-shadow:0 6px 18px rgba(15,23,42,0.04); }
+.card p { color:#6b7280; margin-bottom:6px; }
+.card h3 { font-size:20px; font-weight:800; color:#111827; }
+.quick-actions { display:flex; gap:12px; align-items:center; margin-bottom:20px; }
+.btn-green { background:#10b981; color:#fff; padding:8px 14px; border-radius:8px; font-weight:700; }
+.btn-outline { background:transparent; border:2px solid #10b981; color:#065f46; padding:8px 14px; border-radius:8px; font-weight:700; }
+.btn-yellow { background:#facc15; color:#000; padding:8px 14px; border-radius:8px; font-weight:700; }
+.order-columns { display:grid; grid-template-columns: repeat(3, 1fr); gap:18px; margin-bottom:22px; }
+.order-card { background:#fff; padding:16px; border-radius:12px; box-shadow:0 6px 14px rgba(15,23,42,0.04); }
+.order-card h3 { font-weight:700; margin-bottom:8px; }
+.delivered { color:#059669; }
+.pending { color:#f97316; }
+.cancelled { color:#ef4444; }
+.low-stock h2 { font-weight:700; margin-bottom:12px; }
+.stock-alerts { display:grid; grid-template-columns: repeat(2, 1fr); gap:18px; }
+.alert { background:#fff9eb; padding:12px; border-radius:10px; display:flex; justify-content:space-between; align-items:center; }
+.logout-btn, #sidebar-logout { background:#ef4444; color:#fff; padding:8px 14px; border-radius:8px; border:none; cursor:pointer; }
+.logout-btn:hover, #sidebar-logout:hover { background:#dc2626; }

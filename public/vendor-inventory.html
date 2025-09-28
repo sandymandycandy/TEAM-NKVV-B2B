@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Vendor - Inventory</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/vendor-style.css">
+    <style>
+        .inventory-card {
+            background-color: #ffffff;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1.5rem;
+        }
+        @media (min-width: 768px) {
+            .inventory-card {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+        }
+        .inventory-card-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .inventory-card-stock-expiry {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1.5rem;
+            text-align: left;
+        }
+        @media (min-width: 768px) {
+            .inventory-card-stock-expiry {
+                flex-direction: row;
+                align-items: center;
+                text-align: center;
+            }
+        }
+        .inventory-card-stock-expiry > div {
+            flex-shrink: 0;
+        }
+    /* Styles for the modal */
+        .modal {
+          position: fixed;
+          z-index: 1000;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          overflow: auto;
+          background-color: rgba(0,0,0,0.4);
+          display: none;
+          justify-content: center;
+          align-items: center;
+        }
+        .modal-content {
+          background-color: #fefefe;
+          padding: 20px;
+          border-radius: 8px;
+          max-width: 400px;
+          text-align: center;
+        }
+        .modal-content.success {
+          background-color: #d1e7dd;
+          color: #0f5132;
+        }
+        .modal-content.error {
+          background-color: #f8d7da;
+          color: #842029;
+        }
+        /* Highlight style for low stock product */
+        .highlight {
+            border: 2px solid #ef4444;
+            box-shadow: 0 0 10px #f87171;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 flex min-h-screen">
+
+    <!-- Message Modal -->
+    <div id="message-modal" class="modal">
+      <div id="message-modal-content" class="modal-content">
+        <p id="modal-message"></p>
+        <button class="mt-4 bg-blue-600 text-white px-4 py-2 rounded-md" onclick="closeModal()">Close</button>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="w-64 h-screen bg-white shadow-sm border-r p-6 flex flex-col">
+      <div class="p-6">
+        <h2 class="text-2xl font-bold text-teal-600">DASHBOARD</h2>
+        <p class="text-sm text-gray-500">Vendor</p>
+      </div>
+      <nav class="mt-6 space-y-2 flex-1">
+        <a href="/vendor-dashboard" aria-current="false">🏠 Home</a>
+        <a href="/vendor/products" aria-current="false">📦 My Products</a>
+        <a href="/vendor/inventory" class="active" aria-current="page">📥 Inventory</a>
+        <a href="/vendor/orders" aria-current="false">🛒 Orders</a>
+        <a href="/vendor/profile" aria-current="false">👤 Profile</a>
+        <a href="/vendor/notifications" aria-current="false">🔔 Notifications</a>
+        <a href="/vendor/chat" aria-current="false">💬 Chat</a>
+      </nav>
+      <button id="logout-btn" class="logout-btn mt-auto">Log Out</button>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-4 md:p-10">
+        <h2 class="text-2xl md:text-3xl font-bold mb-2 text-gray-800">Inventory Management</h2>
+        <p class="text-base text-gray-500 mb-6">Monitor your product stock and expiry details</p>
+
+        <!-- Dynamic Inventory List -->
+        <div id="inventoryList" class="space-y-4 max-w-full lg:max-w-4xl mx-auto"></div>
+    </main>
+   
+    <script>
+        // Message Modal Functions
+        const modal = document.getElementById('message-modal');
+        const modalMessage = document.getElementById('modal-message');
+        const modalContent = document.getElementById('message-modal-content');
+
+        function showModal(message, type) {
+            modalMessage.textContent = message;
+            modalContent.className = 'modal-content ' + type;
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            modal.style.display = 'none';
+        }
+
+        function editProduct(productId) {
+            // Save product ID in localStorage so the edit page can retrieve it
+            localStorage.setItem('editProductId', productId);
+            window.location.href = '/vendor/add-product';
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                showModal('Please log in to access inventory.', 'error');
+                setTimeout(() => window.location.href = '/login', 2000);
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/vendor/inventory', {
+                    method: 'GET',
+                    headers: { 'x-auth-token': token }
+                });
+                const result = await response.json();
+
+                const inventoryContainer = document.getElementById('inventoryList');
+                inventoryContainer.innerHTML = '';
+
+                if (response.ok && result.success && result.data.length > 0) {
+                    result.data.forEach(product => {
+                        const card = document.createElement('div');
+                        card.id = `product-${product._id}`;
+                        card.classList.add('inventory-card');
+                        card.innerHTML = `
+                            <div class="inventory-card-info">
+                                <div class="w-12 h-12 md:w-16 md:h-16 bg-gray-200 rounded-md flex-shrink-0"></div>
+                                <div>
+                                    <h3 class="font-semibold text-base md:text-lg text-gray-800">${product.name}</h3>
+                                    <p class="text-gray-500 text-sm">${product.category}</p>
+                                    <p class="font-semibold mt-1 text-base">₹${product.price}/${product.unit}</p>
+                                </div>
+                            </div>
+                            <div class="inventory-card-stock-expiry">
+                                <div>
+                                    <p class="text-sm text-gray-500">Stock</p>
+                                    <p class="${product.stock > 10 ? 'text-green-600' : 'text-red-600'} font-bold text-base md:text-lg">${product.stock}</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">Expiry Date</p>
+                                    <p class="text-red-600 font-bold text-base md:text-lg">${product.expiryDate || 'N/A'}</p>
+                                </div>
+                                <button onclick="editProduct('${product._id}')" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg text-sm md:text-base">EDIT</button>
+                            </div>
+                        `;
+                        inventoryContainer.appendChild(card);
+                    });
+                    
+                    // Highlight a specific product if a 'highlight' query parameter exists
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const productIdToHighlight = urlParams.get('highlight');
+                    if (productIdToHighlight) {
+                        const productCard = document.getElementById(`product-${productIdToHighlight}`);
+                        if (productCard) {
+                            productCard.classList.add('highlight');
+                            productCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    }
+
+                } else if (response.ok && result.data.length === 0) {
+                    inventoryContainer.innerHTML = '<p class="text-gray-600">No products found in your inventory.</p>';
+                } else {
+                    showModal('Failed to load inventory: ' + (result.message || 'Unknown error'), 'error');
+                    if (response.status === 401 || response.status === 403) {
+                        localStorage.clear();
+                        setTimeout(() => window.location.href = '/login', 2000);
+                    }
+                }
+            } catch (err) {
+                console.error('Error loading inventory:', err);
+                showModal('Could not load inventory due to a network error.', 'error');
+            }
+        });
+            // Ensure logout button works
+            (function(){
+                const b = document.getElementById('logout-btn');
+                if (b) b.addEventListener('click', ()=>{ localStorage.clear(); window.location.href = '/login'; });
+            })();
+    </script>
+</body>
+</html>
