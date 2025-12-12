@@ -1,278 +1,533 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Buyer Chat · ScubeG</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" />
-  </head>
-  <body class="bg-gray-50 font-[Inter]">
-    <div class="flex min-h-screen">
-      <aside class="w-64 bg-white border-r p-6 flex flex-col">
-        <h2 class="text-2xl font-bold text-teal-600">Dashboard</h2>
-        <p class="text-sm text-gray-500 mb-8">Buyer</p>
-        <nav class="space-y-4 flex-1">
-          <a href="/buyer-dashboard" class="flex items-center gap-2 text-gray-700 hover:text-blue-600">🏠 Home</a>
-          <a href="/buyer/products" class="flex items-center gap-2 text-gray-700 hover:text-blue-600">📦 Products Listing</a>
-          <a href="/buyer/cart" class="flex items-center gap-2 text-gray-700 hover:text-blue-600">🛒 My Cart</a>
-          <a href="/buyer/profile" class="flex items-center gap-2 text-gray-700 hover:text-blue-600">👤 Profile</a>
-          <a href="/buyer/history" class="flex items-center gap-2 text-gray-700 hover:text-blue-600">📥 History</a>
-          <a href="/buyer/chat" class="flex items-center text-white bg-blue-600 px-3 py-2 rounded-md font-semibold">💬 Chat</a>
-        </nav>
-        <button id="logout-btn" class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg mt-auto">Log Out</button>
-      </aside>
 
-      <main class="flex-1 p-8">
-        <div class="mb-8 bg-gradient-to-r from-yellow-100 via-pink-100 to-blue-100 border border-yellow-300 p-6 rounded-2xl shadow-lg">
-          <div class="flex justify-between items-center mb-4">
-            <h2 class="text-2xl font-bold text-gray-800">💬 Chat</h2>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Buyer Chat · ScubeG</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              300: '#7dd3fc',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+
+<body class="bg-gray-50 font-sans text-gray-900">
+  <div class="flex min-h-screen">
+    <aside
+      class="w-64 bg-white border-r border-gray-200 flex flex-col fixed h-full z-10 transition-transform duration-300 ease-in-out transform -translate-x-full md:translate-x-0"
+      id="sidebar">
+      <div class="p-6 border-b border-gray-100">
+        <h1 class="text-2xl font-bold text-brand-600 tracking-tight">DASHBOARD</h1>
+        <p class="text-sm text-gray-500 mt-1">Buyer Portal</p>
+      </div>
+
+      <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+        <a href="/buyer-dashboard"
+          class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-brand-600 rounded-lg font-medium transition-colors">
+          <span class="mr-3 text-xl">🏠</span> Home
+        </a>
+        <a href="/buyer/products"
+          class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-brand-600 rounded-lg font-medium transition-colors">
+          <span class="mr-3 text-xl">📦</span> Products Listing
+        </a>
+        <a href="/buyer/cart"
+          class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-brand-600 rounded-lg font-medium transition-colors">
+          <span class="mr-3 text-xl">🛒</span> My Cart
+        </a>
+        <a href="/buyer/profile"
+          class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-brand-600 rounded-lg font-medium transition-colors">
+          <span class="mr-3 text-xl">👤</span> Profile
+        </a>
+        <a href="/buyer/history"
+          class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-brand-600 rounded-lg font-medium transition-colors">
+          <span class="mr-3 text-xl">📥</span> History
+        </a>
+        <a href="/buyer/chat"
+          class="flex items-center px-4 py-3 text-brand-700 bg-brand-50 rounded-lg font-medium transition-colors">
+          <span class="mr-3 text-xl">💬</span> Chat
+        </a>
+      </nav>
+
+      <div class="p-4 border-t border-gray-100">
+        <button id="logout-btn"
+          class="w-full flex items-center justify-center px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 rounded-lg font-medium transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          Log Out
+        </button>
+      </div>
+    </aside>
+
+    <main class="flex-1 md:ml-64 p-8 transition-all duration-300 h-screen flex flex-col">
+      <div
+        class="mb-6 bg-gradient-to-r from-brand-50 via-white to-brand-50 border border-brand-100 p-6 rounded-2xl shadow-sm">
+        <div class="flex justify-between items-center mb-2">
+          <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+            <span>💬</span> Chat
+          </h2>
+        </div>
+        <p class="text-sm text-gray-600">Message vendors about orders, products and support</p>
+      </div>
+
+      <div class="grid grid-cols-12 gap-6 flex-1 min-h-0">
+        <!-- Conversations List -->
+        <div class="col-span-4 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col overflow-hidden">
+          <div class="p-4 border-b border-gray-100">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="font-bold text-gray-800">Conversations</h3>
+            </div>
+            <div class="relative">
+              <input id="search" placeholder="Search conversations..."
+                class="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white transition-all"
+                oninput="filterConversations()" />
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 absolute left-3 top-2.5 text-gray-400" fill="none"
+                viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
           </div>
-          <p class="text-sm text-gray-600">Message vendors about orders, products and support</p>
+          <ul id="convList" class="flex-1 overflow-y-auto p-2 space-y-1 custom-scrollbar">
+            <!-- Conversations will be injected here -->
+          </ul>
         </div>
 
-        <div class="grid grid-cols-12 gap-6">
-          <div class="col-span-4">
-            <div class="bg-white p-4 rounded-xl shadow">
-              <div class="flex items-center justify-between mb-4">
-                <h3 class="font-semibold">Conversations</h3>
-                <input id="search" placeholder="Search" class="border rounded px-2 py-1 text-sm" oninput="filterConversations()" />
-              </div>
-              <ul id="convList" class="space-y-3 max-h-[65vh] overflow-auto"></ul>
+        <!-- Chat Area -->
+        <div class="col-span-8 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col overflow-hidden">
+          <div id="chatHeader" class="p-4 border-b border-gray-100 flex items-center gap-4 bg-gray-50/50 h-20">
+            <!-- Dynamic header -->
+            <div class="flex items-center justify-center w-full h-full text-gray-400">
+              Select a conversation to start chatting
             </div>
           </div>
 
-          <div class="col-span-8">
-            <div class="bg-white rounded-xl shadow flex flex-col h-[70vh]">
-              <div id="chatHeader" class="p-4 border-b flex items-center gap-3">
-                <!-- dynamic header -->
+          <div id="chatBody" class="flex-1 overflow-y-auto p-6 space-y-4 bg-white custom-scrollbar">
+            <div class="flex flex-col items-center justify-center h-full text-gray-400">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mb-4 opacity-20" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+              </svg>
+              <p>Select a conversation from the left to start chatting</p>
+            </div>
+          </div>
+
+          <div id="chatFooter" class="p-4 border-t border-gray-100 bg-gray-50 hidden">
+            <div class="flex gap-3 items-center">
+              <button class="text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-200 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                </svg>
+              </button>
+              <input id="msgInput"
+                class="flex-1 border border-gray-300 rounded-full px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all shadow-sm"
+                placeholder="Type your message..." onkeydown="handleKey(event)" />
+              <button
+                class="bg-brand-600 text-white p-2.5 rounded-full hover:bg-brand-700 transition-colors shadow-sm transform hover:scale-105 active:scale-95"
+                onclick="sendMessage()">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path
+                    d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    let active = null;
+    let socket = null;
+    let userId = null;
+    let convs = [];
+
+    function parseJwt(token) {
+      try {
+        const base = token.split('.')[1];
+        const json = decodeURIComponent(atob(base).split('').map(function (c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        return JSON.parse(json);
+      } catch (e) {
+        return {};
+      }
+    }
+
+    function renderList(list) {
+      const ul = document.getElementById('convList');
+      ul.innerHTML = '';
+      list.forEach(c => {
+        const li = document.createElement('li');
+        li.className = `flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${active &&
+          active.id === c.id ? 'bg-brand-50 border-l-4 border-brand-500' : 'hover:bg-gray-50 border-l-4 border-transparent'}`;
+        li.onclick = () => selectConv(c.id);
+
+        // Generate initials
+        const initials = (c.vendor || 'U').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+
+        li.innerHTML = `
+            <div class="relative">
+              <div
+                class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-sm"
+                style="background:${c.color || 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)'}">
+                ${initials}
               </div>
-              <div id="chatBody" class="p-4 flex-1 overflow-auto space-y-3">
-                <div class="text-center text-gray-500 mt-12">Select a conversation from the left to start chatting</div>
+              <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex justify-between items-baseline mb-0.5">
+                <div class="font-semibold text-gray-900 truncate text-sm">${c.vendor || 'Unknown'}</div>
+                <div class="text-xs text-gray-400 whitespace-nowrap ml-2">${c.time || ''}</div>
               </div>
-              <div id="chatFooter" class="p-4 border-t hidden">
-                <div class="flex gap-3">
-                  <input id="msgInput" class="flex-1 border rounded px-3 py-2" placeholder="Write a message..." onkeydown="handleKey(event)" />
-                  <button class="bg-blue-600 text-white px-4 py-2 rounded" onclick="sendMessage()">Send</button>
+              <div class="text-xs text-gray-500 truncate">${c.last || 'Click to chat'}</div>
+            </div>
+            `;
+        ul.appendChild(li);
+      })
+    }
+
+    async function selectConv(id) {
+      active = convs.find(x => String(x.id) === String(id));
+      renderList(convs);
+      await loadHistory(id);
+      renderChat();
+    }
+
+    function renderChat() {
+      const header = document.getElementById('chatHeader');
+      const body = document.getElementById('chatBody');
+      const footer = document.getElementById('chatFooter');
+
+      if (!active) {
+        header.innerHTML = '<div class="flex items-center justify-center w-full h-full text-gray-400">Select a conversation to start chatting</div>';
+        body.innerHTML = `
+            <div class="flex flex-col items-center justify-center h-full text-gray-400">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mb-4 opacity-20" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+              </svg>
+              <p>Select a conversation from the left to start chatting</p>
+            </div>`;
+        footer.classList.add('hidden');
+        return;
+      }
+
+      const initials = (active.vendor || 'U').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+
+      header.innerHTML = `
+            <div class="flex items-center gap-3 w-full">
+              <div
+                class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-sm"
+                style="background:${active.color || 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)'}">
+                ${initials}
+              </div>
+              <div>
+                <div class="font-bold text-gray-900">${active.vendor || 'Unknown'}</div>
+                <div class="text-xs text-green-500 flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span> Online
                 </div>
               </div>
+              <div class="ml-auto flex gap-2">
+                <button class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                  </svg>
+                </button>
+                <button class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                  </svg>
+                </button>
+              </div>
             </div>
-          </div>
-        </div>
-      </main>
-    </div>
+            `;
 
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-      // Buyer chat: connect to socket.io, load conversations and history via API
-      let convs = [];
-      let active = null;
-      let socket = null;
-      let userId = null;
+      body.innerHTML = '';
 
-      function parseJwt(token) {
-        try {
-          const base = token.split('.')[1];
-          const json = decodeURIComponent(atob(base).split('').map(function(c) {
-            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-          }).join(''));
-          return JSON.parse(json);
-        } catch (e) { return {}; }
-      }
+      (active.messages || []).forEach((m, i) => {
+        const isMe = m.from === 'buyer';
+        const d = document.createElement('div');
+        d.className = `flex w-full ${isMe ? 'justify-end' : 'justify-start'}`;
 
-      function renderList(list){
-        const ul = document.getElementById('convList'); ul.innerHTML='';
-        list.forEach(c=>{
-          const li = document.createElement('li'); li.className='flex items-center gap-3 p-2 rounded hover:bg-gray-50 cursor-pointer';
-          li.onclick = ()=>selectConv(c.id);
-          li.innerHTML = `
-            <div class="w-12 h-12 rounded-lg flex items-center justify-center text-white font-bold" style="background:${c.color || '#6b8cff'}">${(c.vendor||'U').charAt(0)}</div>
-            <div class="flex-1">
-              <div class="font-semibold">${c.vendor || 'Unknown'}</div>
-              <div class="text-sm text-gray-500">${c.last || ''}</div>
+        const inner = document.createElement('div');
+        inner.className = `max-w-[70%] px-4 py-2 rounded-2xl shadow-sm text-sm relative group ${isMe
+          ? 'bg-brand-600 text-white rounded-tr-none'
+          : 'bg-white text-gray-800 border border-gray-100 rounded-tl-none'
+          }`;
+
+        let status = '';
+        if (isMe && i === (active.messages.length - 1)) {
+          if (m.status === 'delivered') status = '<span class="ml-1 text-xs opacity-70">✓✓</span>';
+          else status = '<span class="ml-1 text-xs opacity-70">✓</span>';
+        }
+
+        inner.innerHTML = `
+            <p>${m.text}</p>
+            <div class="text-[10px] mt-1 text-right ${isMe ? 'text-brand-100' : 'text-gray-400'}">
+              ${m.time || ''} ${status}
             </div>
-            <div class="text-sm text-gray-400">${c.time || ''}</div>
-          `;
-          ul.appendChild(li);
-        })
-      }
+            `;
+        d.appendChild(inner);
+        body.appendChild(d);
+      });
+      body.scrollTop = body.scrollHeight;
+      footer.classList.remove('hidden');
+    }
 
-      async function selectConv(id){
-        active = convs.find(x=>String(x.id) === String(id));
-        renderList(convs);
-        await loadHistory(id);
-        renderChat();
-      }
-
-      function renderChat(){
-        const header = document.getElementById('chatHeader');
-        const body = document.getElementById('chatBody');
-        const footer = document.getElementById('chatFooter');
-        if(!active){ header.innerHTML=''; body.innerHTML='<div class="text-center text-gray-500 mt-12">Select a conversation from the left to start chatting</div>'; footer.classList.add('hidden'); return; }
-
-        header.innerHTML = `
-          <div class="w-12 h-12 rounded-lg flex items-center justify-center text-white font-bold" style="background:${active.color || '#6b8cff'}">${(active.vendor||'U').charAt(0)}</div>
-          <div>
-            <div class="font-semibold">${active.vendor || 'Unknown'}</div>
-            <div class="text-sm text-gray-500">Online</div>
-          </div>
-        `;
-
-        body.innerHTML = '';
-        (active.messages||[]).forEach((m,i)=>{
-          const d = document.createElement('div');
-          d.className = (m.from==='buyer')? 'text-right': 'text-left';
-          const inner = document.createElement('div');
-          inner.className = (m.from==='buyer')? 'inline-block bg-blue-600 text-white px-4 py-2 rounded-xl':'inline-block bg-gray-100 text-gray-800 px-4 py-2 rounded-xl';
-          let status = '';
-          if(m.from==='buyer' && i === (active.messages.length-1)) {
-            if(m.status === 'delivered') status = '<span class="ml-2 text-xs text-blue-300 align-bottom">delivered</span>';
-            else status = '<span class="ml-2 text-xs text-green-300 align-bottom">sent</span>';
+    async function loadConversations(token) {
+      try {
+        const res = await fetch('/api/messages/conversations', {
+          headers: {
+            'x-auth-token': token
           }
-          inner.innerHTML = `${m.text}<div class="text-xs text-gray-300 mt-1">${m.time || ''} ${status}</div>`;
-          d.appendChild(inner);
-          body.appendChild(d);
         });
-        body.scrollTop = body.scrollHeight;
-        footer.classList.remove('hidden');
-      }
-
-      async function loadConversations(token){
-        try{
-          const res = await fetch('/api/messages/conversations', { headers: { 'x-auth-token': token }});
-          const j = await res.json();
-          if(j.success){
-            convs = j.data.map(c => ({ id: c.partnerId, vendor: c.partnerName, last: c.lastMessage, time: new Date(c.time).toLocaleString(), messages: [], color: '#6b8cff' }));
-            renderList(convs);
-          }
-        } catch(e){ console.error('Failed to load conversations', e); }
-      }
-
-      // Helper to get query param
-      function getQueryParam(name) {
-        const url = new URL(window.location.href);
-        return url.searchParams.get(name);
-      }
-
-      async function loadHistory(otherId){
-        if(!otherId) return;
-        const token = localStorage.getItem('token');
-        try{
-          const res = await fetch(`/api/messages/history/${otherId}`, { headers: { 'x-auth-token': token }});
-          const j = await res.json();
-          if(j.success){
-              const msgs = j.data.map(m => ({ from: String(m.from) === String(userId) ? 'buyer' : 'vendor', text: m.text, time: new Date(m.createdAt).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}), _id: m._id }));
-              const conv = convs.find(c=>String(c.id)===String(otherId));
-              // Update partner name from message payload if available
-              const partnerName = j.data.length ? (String(j.data[0].from) === String(otherId) ? j.data[0].fromName : j.data[0].toName) : undefined;
-              if(conv) { conv.messages = msgs; if(partnerName) conv.vendor = partnerName; } else convs.unshift({ id: otherId, vendor: partnerName || 'Unknown', messages: msgs, color: '#6b8cff' });
-          }
-        } catch(e){ console.error('Failed to load history', e); }
-      }
-
-      function appendIncoming(m){
-        // m: { from, to, text, createdAt, _id }
-        const from = String(m.from);
-        const to = String(m.to);
-        const partnerId = (from === userId) ? to : from;
-        let conv = convs.find(c=>String(c.id)===String(partnerId));
-        if(!conv){ conv = { id: partnerId, vendor: 'Unknown', messages: [], color: '#6b8cff' }; convs.unshift(conv); renderList(convs); }
-        conv.messages.push({ from: (String(m.from) === String(userId)) ? 'buyer' : 'vendor', text: m.text, time: new Date(m.createdAt).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}), _id: m._id });
-        // Emit delivered if I'm the recipient
-        if(String(m.to) === String(userId) && m._id) {
-          socket.emit('delivered', { messageId: m._id, from: m.from, to: m.to });
+        const j = await res.json();
+        if (j.success) {
+          convs = j.data.map(c => ({
+            id: c.partnerId,
+            vendor: c.partnerName,
+            last: c.lastMessage,
+            time: new Date(c.time).toLocaleString(),
+            messages: [],
+            color: '#6b8cff'
+          }));
+          renderList(convs);
         }
-        if(active && String(active.id)===String(conv.id)) renderChat();
+      } catch (e) {
+        console.error('Failed to load conversations', e);
       }
+    }
 
-      // Listen for delivered event
-      if(socket) socket.off('delivered');
-      if(socket) socket.on('delivered', (data) => {
-        // data: { messageId, to }
-        // Find the message in the active conversation and update status
-        if(!active || !active.messages) return;
-        for(let i=active.messages.length-1; i>=0; --i){
-          let m = active.messages[i];
-          if(m._id === data.messageId) {
-            m.status = 'delivered';
-            break;
+    // Helper to get query param
+    function getQueryParam(name) {
+      const url = new URL(window.location.href);
+      return url.searchParams.get(name);
+    }
+
+    async function loadHistory(otherId) {
+      if (!otherId) return;
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      try {
+        const res = await fetch(`/api/messages/history/${otherId}`, {
+          headers: {
+            'x-auth-token': token
           }
-        }
-        renderChat();
-      });
-
-      function sendMessage(){
-        const input = document.getElementById('msgInput');
-        const text = input.value.trim(); if(!text||!active) return;
-        socket.emit('private_message', { to: String(active.id), text });
-        input.value='';
-      }
-
-
-
-
-      function handleKey(e){ if(e.key==='Enter'){ e.preventDefault(); sendMessage(); } }
-
-      function filterConversations(){ const q=document.getElementById('search').value.toLowerCase(); renderList(convs.filter(c=> (c.vendor||'').toLowerCase().includes(q) || (c.last||'').toLowerCase().includes(q))); }
-
-  // auth check & socket wiring
-  document.addEventListener('DOMContentLoaded', async ()=>{
-        const t = localStorage.getItem('token'); if(!t) return window.location.href='/login';
-        const payload = parseJwt(t);
-        userId = payload.user && payload.user.id;
-        // connect socket
-
-  socket = io({ auth: { token: t } });
-  socket.on('connect', ()=>{ console.log('socket connected', socket.id); });
-  socket.on('connect_error', (err)=>{ console.error('socket connect error', err); });
-  socket.off('private_message');
-  socket.on('private_message', (m) => { appendIncoming(m); });
-
-
-        await loadConversations(t);
-
-        // If ?vendor=<id> in URL, auto-select that conversation
-        const vendorId = getQueryParam('vendor');
-        if (vendorId) {
-          // Try to find the conversation, else create a placeholder
-          let conv = convs.find(c => String(c.id) === String(vendorId));
-          if (!conv) {
-            // Fetch vendor name from API
-            let vendorName = 'Vendor';
-            try {
-              const res = await fetch(`/api/user/${vendorId}`, { headers: { 'x-auth-token': t } });
-              if (res.ok) {
-                const data = await res.json();
-                if (data && data.success && data.user && data.user.name) vendorName = data.user.name;
-              }
-            } catch (e) {}
-            conv = { id: vendorId, vendor: vendorName, messages: [], color: '#6b8cff' };
-            convs.unshift(conv);
-            renderList(convs);
-          }
-          await selectConv(vendorId);
-        }
-
-        // highlight active sidebar link based on current path
-        function markActiveNav(){
-          const path = window.location.pathname || '/';
-          document.querySelectorAll('aside a').forEach(a=>{
-            a.classList.remove('text-white','bg-blue-600','px-3','py-2','rounded-md','font-semibold');
-            // optional: remove any extra active marker
+        });
+        const j = await res.json();
+        if (j.success) {
+          const msgs = j.data.map(m => ({
+            from: String(m.from) === String(userId) ? 'buyer' : 'vendor',
+            text: m.text,
+            time: new Date(m.createdAt).toLocaleTimeString([], {
+              hour: '2-digit',
+              minute: '2-digit'
+            }),
+            _id: m._id
+          }));
+          const conv = convs.find(c => String(c.id) === String(otherId));
+          // Update partner name from message payload if available
+          const partnerName = j.data.length ? (String(j.data[0].from) === String(otherId) ? j.data[0].fromName :
+            j.data[0].toName) : undefined;
+          if (conv) {
+            conv.messages = msgs;
+            if (partnerName) conv.vendor = partnerName;
+          } else convs.unshift({
+            id: otherId,
+            vendor: partnerName || 'Unknown',
+            messages: msgs,
+            color: '#6b8cff'
           });
-          const match = document.querySelector(`aside a[href="${path}"]`);
-          if(match){
-            match.classList.add('text-white','bg-blue-600','px-3','py-2','rounded-md','font-semibold');
-          }
         }
+      } catch (e) {
+        console.error('Failed to load history', e);
+      }
+    }
 
-
-  markActiveNav();
-
-
-
-        document.getElementById('logout-btn').addEventListener('click', ()=>{ localStorage.clear(); window.location.href='/login'; });
+    function appendIncoming(m) {
+      // m: {from, to, text, createdAt, _id}
+      const from = String(m.from);
+      const to = String(m.to);
+      const partnerId = (from === userId) ? to : from;
+      let conv = convs.find(c => String(c.id) === String(partnerId));
+      if (!conv) {
+        conv = {
+          id: partnerId,
+          vendor: 'Unknown',
+          messages: [],
+          color: '#6b8cff'
+        };
+        convs.unshift(conv);
+        renderList(convs);
+      }
+      conv.messages.push({
+        from: (String(m.from) === String(userId)) ? 'buyer' : 'vendor',
+        text: m.text,
+        time: new Date(m.createdAt).toLocaleTimeString([], {
+          hour: '2-digit',
+          minute: '2-digit'
+        }),
+        _id: m._id
       });
-    </script>
-  </body>
+      // Emit delivered if I'm the recipient
+      if (String(m.to) === String(userId) && m._id) {
+        socket.emit('delivered', {
+          messageId: m._id,
+          from: m.from,
+          to: m.to
+        });
+      }
+      if (active && String(active.id) === String(conv.id)) renderChat();
+    }
+
+    function sendMessage() {
+      const input = document.getElementById('msgInput');
+      const text = input.value.trim();
+      if (!text || !active) return;
+
+      if (socket) {
+        socket.emit('private_message', {
+          to: String(active.id),
+          text
+        });
+      }
+      input.value = '';
+    }
+
+    function handleKey(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        sendMessage();
+      }
+    }
+
+    function filterConversations() {
+      const q = document.getElementById('search').value.toLowerCase();
+      renderList(convs.filter(c => (c.vendor || '').toLowerCase().includes(q) || (c.last ||
+        '').toLowerCase().includes(q)));
+    }
+
+    // auth check & socket wiring
+    document.addEventListener('DOMContentLoaded', async () => {
+      let t = localStorage.getItem('token');
+      if (!t) {
+        window.location.href = '/login';
+        return;
+      }
+
+      const payload = parseJwt(t);
+      userId = payload.user && payload.user.id;
+      // connect socket
+      try {
+        socket = io({
+          auth: {
+            token: t
+          }
+        });
+        socket.on('connect', () => {
+          console.log('socket connected', socket.id);
+        });
+        socket.on('connect_error', (err) => {
+          console.error('socket connect error', err);
+        });
+        socket.off('private_message');
+        socket.on('private_message', (m) => {
+          appendIncoming(m);
+        });
+        socket.off('delivered');
+        socket.on('delivered', (data) => {
+          // data: {messageId, to}
+          // Find the message in the active conversation and update status
+          if (!active || !active.messages) return;
+          for (let i = active.messages.length - 1; i >= 0; --i) {
+            let m = active.messages[i];
+            if (m._id === data.messageId) {
+              m.status = 'delivered';
+              break;
+            }
+          }
+          renderChat();
+        });
+      } catch (e) {
+        console.log("Socket init failed (likely due to missing script or backend)", e);
+      }
+
+      await loadConversations(t);
+
+      // If ?vendor=<id> in URL, auto-select that conversation
+      const vendorId = getQueryParam('vendor');
+      if (vendorId) {
+        // Try to find the conversation, else create a placeholder
+        let conv = convs.find(c => String(c.id) === String(vendorId));
+        if (!conv) {
+          // Fetch vendor name from API
+          let vendorName = 'Vendor';
+          try {
+            const res = await fetch(`/api/user/${vendorId}`, {
+              headers: {
+                'x-auth-token': t
+              }
+            });
+            if (res.ok) {
+              const data = await res.json();
+              if (data && data.success && data.user && data.user.name) vendorName = data.user.name;
+            }
+          } catch (e) { }
+          conv = {
+            id: vendorId,
+            vendor: vendorName,
+            messages: [],
+            color: '#6b8cff'
+          };
+          convs.unshift(conv);
+          renderList(convs);
+        }
+        await selectConv(vendorId);
+      }
+
+      document.getElementById('logout-btn').addEventListener('click', () => {
+        localStorage.clear();
+        window.location.href = '/login';
+      });
+    });
+  </script>
+</body>
+
 </html>

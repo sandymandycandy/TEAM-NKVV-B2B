@@ -18,7 +18,7 @@ const auth = (req, res, next) => {
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         req.user = decoded.user;
-        
+
         if (req.user.role !== 'buyer') {
             return res.status(403).json({ msg: 'Access denied: not a buyer' });
         }
@@ -37,7 +37,7 @@ router.get('/dashboard-data', auth, async (req, res) => {
         const successfulOrdersCount = await Order.countDocuments({ buyerId, status: 'Delivered' });
         const pendingOrdersCount = await Order.countDocuments({ buyerId, status: 'Pending' });
         const cancelledOrdersCount = await Order.countDocuments({ buyerId, status: 'Cancelled' });
-        
+
         // Fetch recent orders
         const recentOrders = await Order.find({ buyerId }).sort({ orderDate: -1 }).limit(3);
 
@@ -45,19 +45,23 @@ router.get('/dashboard-data', auth, async (req, res) => {
         const frequentlyBoughtItems = await Order.aggregate([
             { $match: { buyerId: new mongoose.Types.ObjectId(buyerId) } },
             { $unwind: '$products' },
-            { $group: {
-                _id: '$products.productId',
-                count: { $sum: '$products.quantity' }
-            }},
+            {
+                $group: {
+                    _id: '$products.productId',
+                    count: { $sum: '$products.quantity' }
+                }
+            },
             { $sort: { count: -1 } },
             { $limit: 3 },
             { $lookup: { from: 'products', localField: '_id', foreignField: '_id', as: 'productInfo' } },
             { $unwind: '$productInfo' },
-            { $project: {
-                _id: 0,
-                name: '$productInfo.name',
-                count: '$count'
-            }}
+            {
+                $project: {
+                    _id: 0,
+                    name: '$productInfo.name',
+                    count: '$count'
+                }
+            }
         ]);
 
         const dashboardData = {
@@ -81,7 +85,7 @@ router.get('/dashboard-data', auth, async (req, res) => {
                 cancelled: recentOrders.filter(o => o.status === 'Cancelled').map(o => o.orderIdDisplay)
             }
         };
-        
+
         res.json({ success: true, ...dashboardData });
     } catch (err) {
         console.error(err.message);
@@ -126,7 +130,7 @@ router.post('/cart', auth, async (req, res) => {
 router.get('/cart', auth, async (req, res) => {
     try {
         const cartItems = await CartItem.find({ userId: req.user.id }).populate('productId');
-        
+
         let total = 0;
         const cartWithSubtotal = cartItems.map(item => {
             const subtotal = item.quantity * item.productId.price;
@@ -228,7 +232,7 @@ router.get('/history', auth, async (req, res) => {
             statusText: order.status,
             statusColor: order.status === 'Delivered' ? 'green' : order.status === 'Pending' ? 'yellow' : 'red'
         }));
-        
+
         res.json({ success: true, data: orderHistory });
     } catch (err) {
         console.error(err.message);
@@ -246,7 +250,7 @@ router.post('/orders', auth, async (req, res) => {
         if (cartItems.length === 0) {
             return res.status(400).json({ success: false, message: 'Your cart is empty.' });
         }
-        
+
         const ordersByVendor = {};
         cartItems.forEach(item => {
             const vendorId = item.productId.vendorId.toString();
@@ -297,6 +301,40 @@ router.post('/orders', auth, async (req, res) => {
         res.json({ success: true, message: 'Order placed successfully!' });
     } catch (err) {
         console.error('Error placing order:', err.message);
+        res.status(500).json({ success: false, message: 'Server Error' });
+    }
+});
+
+// Get order details by ID
+router.get('/order/:orderId', auth, async (req, res) => {
+    try {
+        const buyerId = req.user.id;
+        const { orderId } = req.params;
+
+        let query = { buyerId: buyerId };
+        if (mongoose.isValidObjectId(orderId)) {
+            query.$or = [{ _id: orderId }, { orderIdDisplay: orderId }];
+        } else {
+            query.orderIdDisplay = orderId;
+        }
+
+        const order = await Order.findOne(query)
+            .populate('vendorId', 'name email')
+            .populate('products.productId', 'name price image');
+
+        if (!order) {
+            return res.status(404).json({
+                success: false,
+                message: 'Order not found or access denied'
+            });
+        }
+
+        res.json({
+            success: true,
+            order: order
+        });
+    } catch (err) {
+        console.error('Error fetching order details:', err.message);
         res.status(500).json({ success: false, message: 'Server Error' });
     }
 });

@@ -1,12 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <title>Vendor Notifications - Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/css/vendor-style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              300: '#7dd3fc',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+            }
+          }
+        }
+      }
+    }
+  </script>
   <style>
     /* Styles for the modal */
     .modal {
@@ -17,185 +42,302 @@
       width: 100%;
       height: 100%;
       overflow: auto;
-      background-color: rgba(0,0,0,0.4);
+      background-color: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
       display: none;
       justify-content: center;
       align-items: center;
     }
+
     .modal-content {
       background-color: #fefefe;
-      padding: 20px;
-      border-radius: 8px;
+      padding: 24px;
+      border-radius: 16px;
       max-width: 400px;
+      width: 90%;
       text-align: center;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      transform: scale(0.95);
+      transition: transform 0.2s;
     }
+
+    .modal.show .modal-content {
+      transform: scale(1);
+    }
+
     .modal-content.success {
-      background-color: #d1e7dd;
-      color: #0f5132;
+      border-left: 4px solid #10b981;
     }
+
     .modal-content.error {
-      background-color: #f8d7da;
-      color: #842029;
+      border-left: 4px solid #ef4444;
     }
   </style>
 </head>
-<body class="bg-gray-100 flex">
+
+<body class="bg-gray-50 font-sans text-gray-900">
 
   <!-- Message Modal -->
   <div id="message-modal" class="modal">
     <div id="message-modal-content" class="modal-content">
-      <p id="modal-message"></p>
-      <button class="mt-4 bg-blue-600 text-white px-4 py-2 rounded-md" onclick="closeModal()">Close</button>
+      <h3 id="modal-title" class="text-lg font-bold mb-2">Notification</h3>
+      <p id="modal-message" class="text-gray-600 mb-6"></p>
+      <button
+        class="w-full bg-brand-600 hover:bg-brand-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+        onclick="closeModal()">Close</button>
     </div>
   </div>
 
-  <!-- Sidebar -->
-  <aside class="w-64 h-screen bg-white shadow-sm border-r flex flex-col p-6">
-    <div class="p-0 mb-2">
-      <h1 class="text-2xl font-bold text-green-600">Dashboard</h1>
-      <p class="text-sm text-gray-500">Vendor</p>
-    </div>
-    <nav class="mt-4 space-y-1 flex-1">
-      <a href="/vendor-dashboard" aria-current="false">🏠 Home</a>
-      <a href="/vendor/products" aria-current="false">📦 My Products</a>
-      <a href="/vendor/inventory" aria-current="false">📥 Inventory</a>
-      <a href="/vendor/orders" aria-current="false">🛒 Orders</a>
-      <a href="/vendor/profile" aria-current="false">👤 Profile</a>
-      <a href="/vendor/notifications" class="active" aria-current="page">🔔 Notifications <span id="new-notification-dot" class="ml-2 w-2.5 h-2.5 bg-red-600 rounded-full"></span></a>
-      <a href="/vendor/chat" aria-current="false">💬 Chat</a>
-    </nav>
-    <button id="logout-btn" class="logout-btn mt-auto">Log Out</button>
-  </aside>
-
-  <!-- Main Content -->
-  <main class="flex-1 p-8 overflow-y-auto">
-    <div class="bg-white rounded-lg shadow-md p-6">
-      <!-- Header -->
-      <h2 class="text-3xl font-bold text-gray-800 mb-6">🔔 Notifications</h2>
-
-      <!-- New Order Notifications -->
-      <h3 class="text-xl font-bold text-gray-700 mb-4">New Orders</h3>
-      <div id="new-order-notifications" class="space-y-6 mb-8">
-        <!-- New order notifications will be dynamically loaded here -->
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside
+      class="w-64 bg-white border-r border-gray-200 flex flex-col fixed h-full z-10 transition-transform duration-300 ease-in-out transform -translate-x-full md:translate-x-0"
+      id="sidebar">
+      <div class="p-6 border-b border-gray-100">
+        <h1 class="text-2xl font-bold text-brand-600 tracking-tight">DASHBOARD</h1>
+        <p class="text-sm text-gray-500 mt-1">Vendor Portal</p>
       </div>
 
-      <!-- System Notifications -->
-      <h3 class="text-xl font-bold text-gray-700 mb-4">System Alerts</h3>
-      <div id="system-notifications" class="mt-10 space-y-4">
-        <!-- System notifications will be dynamically loaded here -->
+      <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+        <a href="/vendor-dashboard"
+          class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-brand-600 rounded-lg font-medium transition-colors">
+          <span class="mr-3 text-xl">🏠</span> Home
+        </a>
+        <a href="/vendor/products"
+          class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-brand-600 rounded-lg font-medium transition-colors">
+          <span class="mr-3 text-xl">📦</span> My Products
+        </a>
+        <a href="/vendor/inventory"
+          class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-brand-600 rounded-lg font-medium transition-colors">
+          <span class="mr-3 text-xl">📥</span> Inventory
+        </a>
+        <a href="/vendor/orders"
+          class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-brand-600 rounded-lg font-medium transition-colors">
+          <span class="mr-3 text-xl">🛒</span> Orders
+        </a>
+        <a href="/vendor/profile"
+          class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-brand-600 rounded-lg font-medium transition-colors">
+          <span class="mr-3 text-xl">👤</span> Profile
+        </a>
+        <a href="/vendor/notifications"
+          class="flex items-center px-4 py-3 text-brand-700 bg-brand-50 rounded-lg font-medium transition-colors">
+          <span class="mr-3 text-xl">🔔</span> Notifications
+        </a>
+        <a href="/vendor/chat"
+          class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-brand-600 rounded-lg font-medium transition-colors">
+          <span class="mr-3 text-xl">💬</span> Chat
+        </a>
+      </nav>
+
+      <div class="p-4 border-t border-gray-100">
+        <button id="logout-btn"
+          class="w-full flex items-center justify-center px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 rounded-lg font-medium transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          Log Out
+        </button>
       </div>
+    </aside>
 
-      <!-- Footer -->
-      <p class="text-sm text-gray-400 text-center mt-6" id="last-updated-text">Last updated a moment ago</p>
-    </div>
-  </main>
+    <!-- Main Content -->
+    <main class="flex-1 md:ml-64 p-8 transition-all duration-300">
+      <div class="max-w-4xl mx-auto">
+        <div class="flex justify-between items-center mb-8">
+          <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+            <span>🔔</span> Notifications
+          </h2>
+          <p class="text-sm text-gray-400" id="last-updated-text">Last updated a moment ago</p>
+        </div>
 
-<script>
-  // Message Modal Functions
-  const modal = document.getElementById('message-modal');
-  const modalMessage = document.getElementById('modal-message');
-  const modalContent = document.getElementById('message-modal-content');
+        <div class="space-y-8">
+          <!-- New Order Notifications -->
+          <div>
+            <h3 class="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
+              <span class="w-2 h-8 bg-green-500 rounded-full"></span>
+              New Orders
+            </h3>
+            <div id="new-order-notifications" class="space-y-4">
+              <div class="p-8 text-center text-gray-500 bg-white rounded-xl shadow-sm border border-gray-100">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600 mx-auto mb-2">
+                </div>
+                Loading notifications...
+              </div>
+            </div>
+          </div>
 
-  function showModal(message, type) {
+          <!-- System Notifications -->
+          <div>
+            <h3 class="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
+              <span class="w-2 h-8 bg-blue-500 rounded-full"></span>
+              System Alerts
+            </h3>
+            <div id="system-notifications" class="space-y-4">
+              <div class="p-8 text-center text-gray-500 bg-white rounded-xl shadow-sm border border-gray-100">
+                Loading system alerts...
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Message Modal Functions
+    const modal = document.getElementById('message-modal');
+    const modalMessage = document.getElementById('modal-message');
+    const modalTitle = document.getElementById('modal-title');
+    const modalContent = document.getElementById('message-modal-content');
+
+    function showModal(message, type) {
       modalMessage.textContent = message;
-      modalContent.className = 'modal-content ' + type;
+      if (type === 'success') {
+        modalTitle.textContent = 'Success';
+        modalTitle.className = 'text-lg font-bold mb-2 text-green-600';
+        modalContent.className = 'modal-content success';
+      } else {
+        modalTitle.textContent = 'Error';
+        modalTitle.className = 'text-lg font-bold mb-2 text-red-600';
+        modalContent.className = 'modal-content error';
+      }
       modal.style.display = 'flex';
-  }
-
-  function closeModal() {
-      modal.style.display = 'none';
-  }
-
-  async function loadNotifications() {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      showModal('Please log in first.', 'error');
-      setTimeout(() => window.location.href = '/login', 2000);
-      return;
+      setTimeout(() => {
+        modal.classList.add('show');
+      }, 10);
     }
 
-    try {
-      const response = await fetch('/api/vendor/notifications', {
-        headers: { 'x-auth-token': token }
-      });
-      const result = await response.json();
+    function closeModal() {
+      modal.classList.remove('show');
+      setTimeout(() => {
+        modal.style.display = 'none';
+      }, 200);
+    }
 
-      if (response.ok && result.success) {
-        const newOrderContainer = document.getElementById('new-order-notifications');
-        const systemNotificationContainer = document.getElementById('system-notifications');
-        
-        newOrderContainer.innerHTML = ''; // Clear existing content
-        systemNotificationContainer.innerHTML = ''; // Clear existing content
+    async function loadNotifications() {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        window.location.href = '/login';
+        return;
+      }
 
-        let hasNewOrders = false;
+      const newOrderContainer = document.getElementById('new-order-notifications');
+      const systemContainer = document.getElementById('system-notifications');
+      const lastUpdatedText = document.getElementById('last-updated-text');
 
-        result.data.forEach(notification => {
-          if (notification.type === 'new_order') {
-            hasNewOrders = true;
-            const notificationDiv = document.createElement('div');
-            notificationDiv.className = 'bg-white p-5 rounded-lg shadow flex justify-between items-start border-l-4 border-green-500 mb-6';
-            notificationDiv.innerHTML = `
-              <div class="flex items-start gap-4">
-                <img src="${notification.image || 'https://via.placeholder.com/128'}" alt="Buyer Photo" class="w-14 h-14 rounded-full object-cover" />
-                <div>
-                  <p class="text-gray-700 font-semibold">${notification.buyerName || 'Unknown Buyer'} <span class="text-sm text-gray-400">(${notification.buyerEmail || 'N/A'})</span></p>
-                  <p class="text-sm text-gray-600 mt-1">Order <strong>#${notification.orderId}</strong>.</p>
-                  <p class="text-xs text-gray-400 mt-1">📞 ${notification.buyerPhone || 'N/A'} • 🕒 ${new Date(notification.time).toLocaleTimeString()}</p>
-                  <p class="text-xs text-gray-400">📍 ${notification.buyerAddress || 'N/A'}</p>
-                </div>
-              </div>
-            `;
-            newOrderContainer.appendChild(notificationDiv);
-          } else { // Handle other notification types
-            const notificationDiv = document.createElement('div');
-            let borderColorClass = 'border-blue-500'; // Default for system alerts
-            if (notification.type === 'offer_reminder') {
-              borderColorClass = 'border-yellow-500';
-            }
-            notificationDiv.className = `bg-white p-4 rounded-lg shadow border-l-4 ${borderColorClass}`;
-            notificationDiv.innerHTML = `
-              <p class="text-sm text-gray-600">
-                <strong>${notification.type === 'system_alert' ? 'Message:' : 'Offer Reminder:'}</strong> ${notification.message}
-                <span class="text-gray-400 text-xs float-right">${new Date(notification.createdAt).toLocaleTimeString()}</span>
-              </p>
-            `;
-            systemNotificationContainer.appendChild(notificationDiv);
+      try {
+        const response = await fetch('/api/vendor/notifications', {
+          headers: {
+            'x-auth-token': token
           }
         });
 
-        // Show/hide red dots based on new orders
-        const newNotificationDot = document.getElementById('new-notification-dot');
-        const newNotificationSolidDot = document.getElementById('new-notification-solid-dot');
-        if (hasNewOrders) {
-            newNotificationDot.classList.remove('hidden');
-            newNotificationSolidDot.classList.remove('hidden');
+        if (response.ok) {
+          const result = await response.json();
+          if (result.success) {
+            newOrderContainer.innerHTML = '';
+            systemContainer.innerHTML = '';
+            lastUpdatedText.textContent = `Last updated ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+
+            if (result.data.length === 0) {
+              newOrderContainer.innerHTML = `<div class="p-8 text-center text-gray-500 bg-white rounded-xl shadow-sm border border-gray-100">No new notifications.</div>`;
+              systemContainer.innerHTML = `<div class="p-8 text-center text-gray-500 bg-white rounded-xl shadow-sm border border-gray-100">No system alerts.</div>`;
+              return;
+            }
+
+            result.data.forEach(notif => {
+              const card = document.createElement('div');
+              card.className = 'bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow relative overflow-hidden group';
+
+              const time = new Date(notif.createdAt || notif.time).toLocaleString();
+
+              if (notif.type === 'new_order') {
+                card.innerHTML = `
+              <div class="absolute top-0 left-0 w-1 h-full bg-green-500"></div>
+              <div class="flex justify-between items-start">
+                <div>
+                  <h4 class="font-bold text-gray-800 text-lg mb-1">New Order Received! 🎉</h4>
+                  <p class="text-gray-600 mb-2">Order <span
+                      class="font-mono font-medium text-brand-600 bg-brand-50 px-1 rounded">${notif.orderId}</span> from
+                    <span class="font-semibold">${notif.buyerName}</span></p>
+                  <div class="flex items-center gap-4 text-sm text-gray-500 mt-3">
+                    <span class="flex items-center gap-1">📞 ${notif.buyerPhone}</span>
+                    <span class="flex items-center gap-1">📍 ${notif.buyerAddress}</span>
+                  </div>
+                </div>
+                <span class="text-xs text-gray-400 font-medium bg-gray-50 px-2 py-1 rounded-full">${time}</span>
+              </div>
+              <div class="mt-4 flex gap-3">
+                <button onclick="window.location.href='/vendor/order-details?id=${notif.orderId}'"
+                  class="flex-1 bg-brand-600 hover:bg-brand-700 text-white py-2 rounded-lg font-medium transition-colors text-sm">View
+                  Order</button>
+                <button
+                  class="px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 text-gray-600 transition-colors"
+                  title="Dismiss">✕</button>
+              </div>
+              `;
+                newOrderContainer.appendChild(card);
+              } else {
+                // System or other notifications
+                let borderClass = 'bg-blue-500';
+                let icon = '📢';
+                if (notif.type === 'system_alert') {
+                  borderClass = 'bg-red-500';
+                  icon = '⚠️';
+                } else if (notif.type === 'offer_reminder') {
+                  borderClass = 'bg-purple-500';
+                  icon = '🏷️';
+                }
+
+                card.innerHTML = `
+              <div class="absolute top-0 left-0 w-1 h-full ${borderClass}"></div>
+              <div class="flex gap-4">
+                <div class="text-2xl bg-gray-50 w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0">
+                  ${icon}</div>
+                <div class="flex-1">
+                  <div class="flex justify-between items-start mb-1">
+                    <h4 class="font-bold text-gray-800">${notif.type.replace('_', ' ').toUpperCase()}</h4>
+                    <span class="text-xs text-gray-400">${time}</span>
+                  </div>
+                  <p class="text-gray-600 text-sm leading-relaxed">${notif.message}</p>
+                </div>
+              </div>
+              `;
+                systemContainer.appendChild(card);
+              }
+            });
+
+            if (newOrderContainer.children.length === 0) {
+              newOrderContainer.innerHTML = `<div class="p-6 text-center text-gray-400 italic">No new order notifications</div>`;
+            }
+            if (systemContainer.children.length === 0) {
+              systemContainer.innerHTML = `<div class="p-6 text-center text-gray-400 italic">No system alerts</div>`;
+            }
+
+          } else {
+            showModal('Failed to load notifications.', 'error');
+          }
         } else {
-            newNotificationDot.classList.add('hidden');
-            newNotificationSolidDot.classList.add('hidden');
+          showModal('Failed to fetch notifications.', 'error');
         }
-
-        document.getElementById('last-updated-text').textContent = `Last updated at ${new Date().toLocaleTimeString()}`;
-
-        if (!hasNewOrders && systemNotificationContainer.innerHTML === '') {
-            newOrderContainer.innerHTML = '<p class="text-gray-600">No new notifications.</p>';
-        }
-
-      } else {
-        showModal('Failed to load notifications: ' + (result.message || 'Unknown error'), 'error');
+      } catch (err) {
+        console.error('Error loading notifications:', err);
+        showModal('Error loading notifications.', 'error');
       }
-    } catch (err) {
-      console.error('Error loading notifications:', err);
-      showModal('Error fetching notifications.', 'error');
     }
-  }
 
-  document.addEventListener('DOMContentLoaded', loadNotifications);
-  // Wire logout button
-  (function(){
-    const b = document.getElementById('logout-btn');
-    if (b) b.addEventListener('click', ()=>{ localStorage.clear(); window.location.href = '/login'; });
-  })();
-</script>
+    document.addEventListener('DOMContentLoaded', () => {
+      loadNotifications();
+
+      document.getElementById('logout-btn').addEventListener('click', () => {
+        localStorage.clear();
+        window.location.href = '/login';
+      });
+    });
+  </script>
 
 </body>
+
 </html>

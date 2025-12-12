@@ -1,294 +1,273 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>VendorConnect Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-  <style>
-    /* Your existing CSS */
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #f3f4f6;
-      display: flex;
-      min-height: 100vh;
-    }
-    aside {
-      width: 260px;
-      background: white;
-      box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
-      height: 100vh;
-      padding: 32px 24px;
-    }
-    aside h1 {
-      font-size: 1.5rem;
-      font-weight: 600;
-      color: #0f766e;
-      margin-bottom: 4px;
-    }
-    aside p {
-      font-size: 0.875rem;
-      color: #6b7280;
-      margin-bottom: 32px;
-    }
-    nav a {
-      display: flex;
-      align-items: center;
-      font-size: 1rem;
-      color: #374151;
-      text-decoration: none;
-      margin-bottom: 16px;
-      padding: 8px;
-      border-radius: 6px;
-      transition: background 0.2s, color 0.2s;
-    }
-    nav a:hover {
-      background-color: #e5e7eb;
-      color: #2563eb;
-    }
-    nav a.active {
-      background-color: #2563eb;
-      color: white;
-      font-weight: 600;
-    }
-    nav span {
-      margin-right: 12px;
-    }
-    main {
-      flex: 1;
-      padding: 40px;
-    }
-    .card-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 24px;
-      margin-bottom: 24px;
-    }
-    .card {
-      background: #fff;
-      padding: 24px;
-      border-radius: 16px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-    }
-    .card p {
-      font-size: 14px;
-      color: #6b7280;
-      margin-bottom: 6px;
-    }
-    .card h3 {
-      font-size: 24px;
-      font-weight: bold;
-    }
-    .card .positive {
-      color: #16a34a;
-    }
-    .card .warning {
-      color: #f97316;
-    }
-    .card .danger {
-      color: #dc2626;
-    }
-    .quick-actions {
-      margin-bottom: 32px;
-    }
-    .quick-actions h2 {
-      font-size: 18px;
-      font-weight: 600;
-      margin-bottom: 16px;
-    }
-    .quick-actions a,
-    .quick-actions button {
-      padding: 10px 16px;
-      border-radius: 8px;
-      font-weight: 600;
-      border: none;
-      cursor: pointer;
-      margin-right: 12px;
-      transition: background 0.2s;
-      text-decoration: none;
-      display: inline-block;
-    }
-    .btn-green {
-      background-color: #22c55e;
-      color: white;
-    }
-    .btn-green:hover {
-      background-color: #16a34a;
-    }
-    .btn-outline {
-      background: transparent;
-      border: 2px solid #22c55e;
-      color: #15803d;
-    }
-    .btn-outline:hover {
-      background-color: #ecfdf5;
-    }
-    .btn-yellow {
-      background-color: #facc15;
-      color: black;
-    }
-    .btn-yellow:hover {
-      background-color: #eab308;
-    }
-    .order-columns {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-      margin-bottom: 32px;
-    }
-    .order-card {
-      background: white;
-      padding: 16px;
-      border-radius: 12px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
-    }
-    .order-card h3 {
-      font-weight: 600;
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .order-card ul {
-      list-style: none;
-      padding: 0;
-      font-size: 14px;
-    }
-    .order-card li {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 6px;
-    }
-    .delivered {
-      color: #16a34a;
-    }
-    .pending {
-      color: #f59e0b;
-    }
-    .cancelled {
-      color: #dc2626;
-    }
-    .low-stock h2 {
-      font-size: 18px;
-      font-weight: 600;
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .stock-alerts {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 24px;
-    }
-    .alert {
-      background-color: #fef9c3;
-      padding: 16px;
-      border-radius: 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .alert p {
-      margin: 0;
-    }
-    .alert-button {
-      background-color: #f97316;
-      color: white;
-      padding: 8px 12px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    .alert-button:hover {
-      background-color: #ea580c;
-    }
-    
-    /* Logout button style */
-    .logout-btn {
-        background-color: #ef4444;
-        color: white;
-        padding: 8px 16px;
-        border-radius: 6px;
-        cursor: pointer;
-        border: none;
-        transition: background-color 0.3s;
-    }
-    .logout-btn:hover {
-        background-color: #dc2626;
-    }
-  </style>
-</head>
-<body>
-  <aside>
-    <h2>DASHBOARD</h2>
-    <p>Vendor</p>
-    <nav>
-      <a href="/vendor-dashboard" class="active"><span>🏠</span> Dashboard</a>
-      <a href="/vendor/products"><span>📦</span> My Products</a>
-      <a href="/vendor/inventory"><span>📥</span> Inventory</a>
-      <a href="/vendor/orders"><span>🛒</span> Orders</a>
-      <a href="/vendor/profile"><span>👤</span> Profile</a>
-      <a href="/vendor/notifications" class="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100">
-        <span class="mr-3">🔔</span> Notifications
-      </a>
-      <a href="/vendor/chat" class="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100">
-        <span class="mr-3">💬</span> Chat
-      </a>
-    </nav>
-    <button class="logout-btn" id="logout-btn" style="margin-top: auto;">Log Out</button>
-  </aside>
-
-  <main>
-    <div class="card-grid">
-      <div class="card">
-        <p>Total Sales</p>
-        <h3 id="total-sales-value">...</h3>
-      </div>
-      <div class="card">
-        <p>Pending Orders</p>
-        <h3 id="pending-orders-value">...</h3>
-      </div>
-      <div class="card top-items">
-        <p>Top Selling Items</p>
-        <ul id="top-selling-list"></ul>
-      </div>
-      <div class="card">
-        <p>Notifications</p>
-        <h3 id="notifications-value">...</h3>
-      </div>
-    </div>
-
-    <div class="quick-actions">
-      <h2>Quick Actions</h2>
-      <a href="/vendor/products" class="btn-green">My product</a>
-      <a href="/vendor/inventory" class="btn-outline">Update Inventory</a>
-      <a href="/vendor/orders" class="btn-yellow">View Orders</a>
-    </div>
-
-    <div class="order-columns">
-      <div class="order-card">
-        <h3 class="delivered">✅ Delivered</h3>
-        <ul id="delivered-orders-list"></ul>
-      </div>
-      <div class="order-card">
-        <h3 class="pending">🟠 Pending</h3>
-        <ul id="pending-orders-list"></ul>
-      </div>
-      <div class="order-card">
-        <h3 class="cancelled">❌ Cancelled</h3>
-        <ul id="cancelled-orders-list"></ul>
-      </div>
-    </div>
-
-    <div class="low-stock">
-      <h2>⚠️ Low Stock Alerts</h2>
-      <div id="low-stock-container" class="stock-alerts"></div>
-    </div>
-  </main>
-    
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              300: '#7dd3fc',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+
+<body class="bg-gray-50 font-sans text-gray-900">
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside
+      class="w-64 bg-white border-r border-gray-200 flex flex-col fixed h-full z-20 transition-transform duration-300 ease-in-out transform -translate-x-full md:translate-x-0"
+      id="sidebar">
+      <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+        <div>
+          <h1 class="text-2xl font-bold text-brand-600 tracking-tight">DASHBOARD</h1>
+          <p class="text-sm text-gray-500 mt-1">Vendor Portal</p>
+        </div>
+        <button id="close-sidebar" class="md:hidden text-gray-500 hover:text-gray-700">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+        <a href="/vendor-dashboard"
+          class="flex items-center px-4 py-3 text-brand-700 bg-brand-50 rounded-lg font-medium transition-colors">
+          <span class="mr-3 text-xl">🏠</span> Dashboard
+        </a>
+        <a href="/vendor/products"
+          class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-brand-600 rounded-lg font-medium transition-colors">
+          <span class="mr-3 text-xl">📦</span> My Products
+        </a>
+        <a href="/vendor/inventory"
+          class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-brand-600 rounded-lg font-medium transition-colors">
+          <span class="mr-3 text-xl">📥</span> Inventory
+        </a>
+        <a href="/vendor/orders"
+          class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-brand-600 rounded-lg font-medium transition-colors">
+          <span class="mr-3 text-xl">🛒</span> Orders
+        </a>
+        <a href="/vendor/profile"
+          class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-brand-600 rounded-lg font-medium transition-colors">
+          <span class="mr-3 text-xl">👤</span> Profile
+        </a>
+        <a href="/vendor/notifications"
+          class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-brand-600 rounded-lg font-medium transition-colors">
+          <span class="mr-3 text-xl">🔔</span> Notifications
+        </a>
+        <a href="/vendor/chat"
+          class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-brand-600 rounded-lg font-medium transition-colors">
+          <span class="mr-3 text-xl">💬</span> Chat
+        </a>
+      </nav>
+
+      <div class="p-4 border-t border-gray-100">
+        <button id="logout-btn"
+          class="w-full flex items-center justify-center px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 rounded-lg font-medium transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          Log Out
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 md:ml-64 p-8 transition-all duration-300">
+      <!-- Header -->
+      <header class="flex justify-between items-center mb-8">
+        <div class="flex items-center gap-4">
+          <button id="sidebar-toggle" class="md:hidden text-gray-600 hover:text-gray-900 focus:outline-none">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+          </button>
+          <div>
+            <h2 class="text-2xl font-bold text-gray-800">Overview</h2>
+            <p class="text-gray-500">Welcome back, here's what's happening today.</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-4">
+          <div class="bg-white p-2 rounded-full shadow-sm border border-gray-100">
+            <span class="text-xl">📅</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Stats Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+          <div class="flex justify-between items-start mb-4">
+            <div>
+              <p class="text-sm font-medium text-gray-500">Total Sales</p>
+              <h3 id="total-sales-value" class="text-2xl font-bold text-gray-800 mt-1">...</h3>
+            </div>
+            <div class="p-2 bg-green-50 rounded-lg text-green-600">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+          <div class="flex justify-between items-start mb-4">
+            <div>
+              <p class="text-sm font-medium text-gray-500">Pending Orders</p>
+              <h3 id="pending-orders-value" class="text-2xl font-bold text-gray-800 mt-1">...</h3>
+            </div>
+            <div class="p-2 bg-orange-50 rounded-lg text-orange-600">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow col-span-1 md:col-span-2 lg:col-span-1">
+          <div class="flex justify-between items-start mb-2">
+            <div>
+              <p class="text-sm font-medium text-gray-500">Top Selling Items</p>
+            </div>
+            <div class="p-2 bg-blue-50 rounded-lg text-blue-600">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+              </svg>
+            </div>
+          </div>
+          <ul id="top-selling-list" class="space-y-2 mt-2"></ul>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+          <div class="flex justify-between items-start mb-4">
+            <div>
+              <p class="text-sm font-medium text-gray-500">Notifications</p>
+              <h3 id="notifications-value" class="text-2xl font-bold text-gray-800 mt-1">...</h3>
+            </div>
+            <div class="p-2 bg-purple-50 rounded-lg text-purple-600">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="mb-8">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Quick Actions</h2>
+        <div class="flex flex-wrap gap-4">
+          <a href="/vendor/products"
+            class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors shadow-sm shadow-green-200">
+            <span class="mr-2">➕</span> Add Product
+          </a>
+          <a href="/vendor/inventory"
+            class="inline-flex items-center px-4 py-2 bg-white border border-green-600 text-green-700 hover:bg-green-50 font-medium rounded-lg transition-colors">
+            <span class="mr-2">📝</span> Update Inventory
+          </a>
+          <a href="/vendor/orders"
+            class="inline-flex items-center px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-medium rounded-lg transition-colors shadow-sm shadow-yellow-200">
+            <span class="mr-2">📋</span> View Orders
+          </a>
+        </div>
+      </div>
+
+      <!-- Recent Orders -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+            <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span> Delivered
+          </h3>
+          <ul id="delivered-orders-list" class="space-y-3"></ul>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+            <span class="w-2 h-2 bg-orange-500 rounded-full mr-2"></span> Pending
+          </h3>
+          <ul id="pending-orders-list" class="space-y-3"></ul>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+            <span class="w-2 h-2 bg-red-500 rounded-full mr-2"></span> Cancelled
+          </h3>
+          <ul id="cancelled-orders-list" class="space-y-3"></ul>
+        </div>
+      </div>
+
+      <!-- Low Stock Alerts -->
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-500 mr-2" viewBox="0 0 20 20"
+            fill="currentColor">
+            <path fill-rule="evenodd"
+              d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+              clip-rule="evenodd" />
+          </svg>
+          Low Stock Alerts
+        </h2>
+
+        <div id="low-stock-container" class="space-y-4">
+          <div class="p-8 text-center text-gray-500">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600 mx-auto mb-2"></div>
+            Loading alerts...
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const closeSidebar = document.getElementById('close-sidebar');
+
+    if (sidebarToggle) {
+      sidebarToggle.addEventListener('click', () => {
+        sidebar.classList.remove('-translate-x-full');
+      });
+    }
+
+    if (closeSidebar) {
+      closeSidebar.addEventListener('click', () => {
+        sidebar.classList.add('-translate-x-full');
+      });
+    }
+
     function restockProduct(productId) {
       // Redirect to inventory page with productId as query param
       window.location.href = `/vendor/inventory?highlight=${productId}`;
@@ -297,9 +276,6 @@
     document.addEventListener('DOMContentLoaded', async () => {
       const token = localStorage.getItem('token');
       if (!token) {
-        // Redirection handled by the submit listener on initial page load if form isn't filled.
-        // For direct navigation, this is a good check.
-        console.log("No token found. Redirecting to login.");
         window.location.href = '/login';
         return;
       }
@@ -307,71 +283,96 @@
       // --- Fetch Dashboard Data ---
       try {
         const res = await fetch('/api/vendor/dashboard-data', {
-            headers: { 'x-auth-token': token }
-        });
-        if (res.status === 401 || res.status === 403) {
-            localStorage.clear();
-            window.location.href = '/login';
-            return;
-        }
-        const data = await res.json();
-        
-        if (res.ok && data.success) {
-          // Populate the dashboard with fetched data
-          document.getElementById('total-sales-value').textContent = `₹${data.data.totalSales.toFixed(2)}`;
-          document.getElementById('pending-orders-value').textContent = data.data.pendingOrders;
-          document.getElementById('notifications-value').textContent = data.data.notifications;
-
-          // Populate Top Selling Items
-          const topSellingList = document.getElementById('top-selling-list');
-          topSellingList.innerHTML = '';
-          data.data.topSellingItems.forEach(item => {
-              topSellingList.innerHTML += `<li><span>${item.name}</span> <span class="positive">${item.sales} sold</span></li>`;
-          });
-          
-          // Populate Recent Orders
-          const deliveredList = document.getElementById('delivered-orders-list');
-          deliveredList.innerHTML = '';
-          data.data.recentOrders.delivered.forEach(order => {
-              deliveredList.innerHTML += `<li><span>${order.buyerId.name}</span> <span class="delivered">✔</span></li>`;
-          });
-
-          const pendingList = document.getElementById('pending-orders-list');
-          pendingList.innerHTML = '';
-          data.data.recentOrders.pending.forEach(order => {
-              pendingList.innerHTML += `<li><span>${order.buyerId.name}</span> <span class="pending">✔</span></li>`;
-          });
-
-          const cancelledList = document.getElementById('cancelled-orders-list');
-          cancelledList.innerHTML = '';
-          data.data.recentOrders.cancelled.forEach(order => {
-              cancelledList.innerHTML += `<li><span>${order.buyerId.name}</span> <span class="cancelled">✔</span></li>`;
-          });
-          
-          // Populate Low Stock Alerts
-          const lowStockContainer = document.getElementById('low-stock-container');
-          lowStockContainer.innerHTML = '';
-          if (data.data.lowStockAlerts.length > 0) {
-              data.data.lowStockAlerts.forEach(item => {
-                  const alertBox = document.createElement('div');
-                  alertBox.className = 'alert';
-                  alertBox.innerHTML = `
-                    <p>${item.name} is low on stock (${item.stock} units)</p>
-                    <button class="alert-button" onclick="restockProduct('${item._id}')">Restock</button>
-                  `;
-                  lowStockContainer.appendChild(alertBox);
-              });
-          } else {
-              lowStockContainer.innerHTML = '<p class="text-gray-500">No low stock alerts.</p>';
+          headers: {
+            'x-auth-token': token
           }
+        });
 
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success) {
+            // Populate the dashboard with fetched data
+            document.getElementById('total-sales-value').textContent = `₹${data.data.totalSales.toFixed(2)}`;
+            document.getElementById('pending-orders-value').textContent = data.data.pendingOrders;
+            document.getElementById('notifications-value').textContent = data.data.notifications;
+
+            // Populate Top Selling Items
+            const topSellingList = document.getElementById('top-selling-list');
+            topSellingList.innerHTML = '';
+            data.data.topSellingItems.forEach(item => {
+              topSellingList.innerHTML += `
+        <li class="flex justify-between items-center text-sm">
+          <span class="text-gray-700 font-medium truncate mr-2">${item.name}</span>
+          <span class="text-green-600 font-semibold whitespace-nowrap">${item.sales} sold</span>
+        </li>`;
+            });
+
+            // Populate Recent Orders
+            const deliveredList = document.getElementById('delivered-orders-list');
+            deliveredList.innerHTML = '';
+            data.data.recentOrders.delivered.forEach(order => {
+              deliveredList.innerHTML += `
+        <li class="flex justify-between items-center text-sm p-2 bg-gray-50 rounded-lg">
+          <span class="text-gray-700 font-medium">${order.buyerId.name}</span>
+          <span class="text-green-600 bg-green-100 px-2 py-0.5 rounded text-xs font-semibold">Delivered</span>
+        </li>`;
+            });
+
+            const pendingList = document.getElementById('pending-orders-list');
+            pendingList.innerHTML = '';
+            data.data.recentOrders.pending.forEach(order => {
+              pendingList.innerHTML += `
+        <li class="flex justify-between items-center text-sm p-2 bg-gray-50 rounded-lg">
+          <span class="text-gray-700 font-medium">${order.buyerId.name}</span>
+          <span class="text-orange-600 bg-orange-100 px-2 py-0.5 rounded text-xs font-semibold">Pending</span>
+        </li>`;
+            });
+
+            const cancelledList = document.getElementById('cancelled-orders-list');
+            cancelledList.innerHTML = '';
+            data.data.recentOrders.cancelled.forEach(order => {
+              cancelledList.innerHTML += `
+        <li class="flex justify-between items-center text-sm p-2 bg-gray-50 rounded-lg">
+          <span class="text-gray-700 font-medium">${order.buyerId.name}</span>
+          <span class="text-red-600 bg-red-100 px-2 py-0.5 rounded text-xs font-semibold">Cancelled</span>
+        </li>`;
+            });
+
+            // Populate Low Stock Alerts
+            const lowStockContainer = document.getElementById('low-stock-container');
+            lowStockContainer.innerHTML = '';
+            if (data.data.lowStockAlerts.length > 0) {
+              data.data.lowStockAlerts.forEach(item => {
+                const alertBox = document.createElement('div');
+                alertBox.className = 'flex justify-between items-center p-4 bg-yellow-50 border border-yellow-100 rounded-lg';
+                alertBox.innerHTML = `
+        <div class="flex items-center">
+          <span class="text-yellow-600 mr-3">⚠️</span>
+          <div>
+            <p class="text-sm font-semibold text-gray-800">${item.name}</p>
+            <p class="text-xs text-gray-500">Only ${item.stock} units left</p>
+          </div>
+        </div>
+        <button
+          class="px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold rounded shadow-sm transition-colors"
+          onclick="restockProduct('${item._id}')">Restock</button>
+        `;
+                lowStockContainer.appendChild(alertBox);
+              });
+            } else {
+              lowStockContainer.innerHTML = '<div class="col-span-2 text-center py-4 text-gray-500 text-sm">No low stock alerts. Good job!</div>';
+            }
+
+          } else {
+            console.error('Failed to fetch dashboard data:', data.message);
+          }
         } else {
-          console.error('Failed to fetch dashboard data:', data.message);
+          console.error('API failed');
         }
       } catch (err) {
         console.error('Error fetching dashboard data:', err);
       }
-      
+
       // Logout functionality
       document.getElementById('logout-btn').addEventListener('click', () => {
         localStorage.clear();
@@ -380,4 +381,5 @@
     });
   </script>
 </body>
+
 </html>

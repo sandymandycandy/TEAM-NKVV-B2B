@@ -31,7 +31,7 @@ const auth = (req, res, next) => {
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         req.user = decoded.user;
-        
+
         if (req.user.role !== 'vendor') {
             return res.status(403).json({ msg: 'Access denied: not a vendor' });
         }
@@ -188,7 +188,7 @@ router.get('/orders', auth, async (req, res) => {
     try {
         const orders = await Order.find({ vendorId: req.user.id })
             // THIS IS THE CORRECTED LINE
-            .populate('buyerId', 'name email') 
+            .populate('buyerId', 'name email')
             .populate({
                 path: 'products.productId',
                 model: 'Product',
@@ -255,7 +255,7 @@ router.get('/notifications', auth, async (req, res) => {
         }
 
         const notifications = await Notification.find({ userId: req.user.id }).sort({ createdAt: -1 });
-        
+
         const enhancedNotifications = await Promise.all(notifications.map(async (n) => {
             if (n.type === 'new_order' && n.relatedEntity && n.relatedEntity.id) {
                 const order = await Order.findById(n.relatedEntity.id).populate('buyerId', 'name email phone address profileImage');
@@ -322,7 +322,7 @@ router.put('/profile', auth, upload.fields([
 ]), async (req, res) => {
     try {
         const { fullName, phone, dob, address, pan, gst, aadhar } = req.body;
-        
+
         const updateFields = { fullName, phone, dob, address, pan, gst, aadhar };
 
         if (req.files) {
@@ -360,7 +360,7 @@ router.put('/profile', auth, upload.fields([
 router.get('/dashboard-data', auth, async (req, res) => {
     try {
         const vendorId = req.user.id;
-        
+
         // Fetch real data from the database
 
         const totalSales = await Order.aggregate([
@@ -373,23 +373,27 @@ router.get('/dashboard-data', auth, async (req, res) => {
         const topSellingItems = await Order.aggregate([
             { $match: { vendorId: new mongoose.Types.ObjectId(vendorId) } },
             { $unwind: '$products' },
-            { $group: {
-                _id: '$products.productId',
-                totalSales: { $sum: '$products.quantity' }
-            }},
+            {
+                $group: {
+                    _id: '$products.productId',
+                    totalSales: { $sum: '$products.quantity' }
+                }
+            },
             { $sort: { totalSales: -1 } },
             { $limit: 3 },
             { $lookup: { from: 'products', localField: '_id', foreignField: '_id', as: 'productInfo' } },
             { $unwind: '$productInfo' },
-            { $project: {
-                _id: 0,
-                name: '$productInfo.name',
-                sales: '$totalSales'
-            }}
+            {
+                $project: {
+                    _id: 0,
+                    name: '$productInfo.name',
+                    sales: '$totalSales'
+                }
+            }
         ]);
-        
+
         const lowStockProducts = await Product.find({ vendorId, stock: { $lt: 5 } }).limit(2);
-        
+
         // Fetch recent orders by status
         const recentDelivered = await Order.find({ vendorId, status: 'Delivered' }).sort({ orderDate: -1 }).limit(3).populate('buyerId', 'name');
         const recentPending = await Order.find({ vendorId, status: 'Pending' }).sort({ orderDate: -1 }).limit(3).populate('buyerId', 'name');
@@ -413,7 +417,7 @@ router.get('/dashboard-data', auth, async (req, res) => {
             },
             notifications: notificationCount
         };
-        
+
         res.json({ success: true, data: dashboardData });
     } catch (err) {
         console.error('Error fetching dashboard data:', err.message);
@@ -421,5 +425,40 @@ router.get('/dashboard-data', auth, async (req, res) => {
     }
 });
 
+
+// @route   GET /api/vendor/orders/:id
+// @desc    Get single order details
+// @access  Private (Vendor only)
+router.get('/orders/:id', auth, async (req, res) => {
+    try {
+        const orderId = req.params.id;
+        let order;
+
+        if (mongoose.isValidObjectId(orderId)) {
+            order = await Order.findOne({
+                $or: [{ _id: orderId }, { orderIdDisplay: orderId }],
+                vendorId: req.user.id
+            })
+                .populate('buyerId', 'name email phone address profileImage')
+                .populate('products.productId', 'name price image unit');
+        } else {
+            order = await Order.findOne({
+                orderIdDisplay: orderId,
+                vendorId: req.user.id
+            })
+                .populate('buyerId', 'name email phone address profileImage')
+                .populate('products.productId', 'name price image unit');
+        }
+
+        if (!order) {
+            return res.status(404).json({ success: false, message: 'Order not found' });
+        }
+
+        res.json({ success: true, order });
+    } catch (err) {
+        console.error('Error fetching order details:', err.message);
+        res.status(500).json({ success: false, message: 'Server Error' });
+    }
+});
 
 module.exports = router;

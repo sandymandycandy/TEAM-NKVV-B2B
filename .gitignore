@@ -1,0 +1,6 @@
+node_modules
+.env
+output.log
+*.log
+.vscode
+.DS_Store

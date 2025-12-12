@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Details - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .modal {
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            padding: 24px;
+            border-radius: 16px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            transform: scale(0.95);
+            transition: transform 0.2s;
+        }
+
+        .modal.show .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-content.success {
+            border-left: 4px solid #10b981;
+        }
+
+        .modal-content.error {
+            border-left: 4px solid #ef4444;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 font-sans text-gray-900">
+
+    <!-- Message Modal -->
+    <div id="message-modal" class="modal">
+        <div id="message-modal-content" class="modal-content">
+            <h3 id="modal-title" class="text-lg font-bold mb-2">Notification</h3>
+            <p id="modal-message" class="text-gray-600 mb-6"></p>
+            <button
+                class="w-full bg-brand-600 hover:bg-brand-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                onclick="closeModal()">Close</button>
+        </div>
+    </div>
+
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <aside
+            class="w-64 bg-white border-r border-gray-200 flex flex-col fixed h-full z-20 transition-transform duration-300 ease-in-out transform -translate-x-full md:translate-x-0"
+            id="sidebar">
+            <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-bold text-brand-600 tracking-tight">DASHBOARD</h1>
+                    <p class="text-sm text-gray-500 mt-1">Buyer Portal</p>
+                </div>
+                <button id="close-sidebar" class="md:hidden text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+
+            <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+                <a href="/buyer-dashboard"
+                    class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-brand-600 rounded-lg font-medium transition-colors">
+                    <span class="mr-3 text-xl">🏠</span> Home
+                </a>
+                <a href="/buyer/products"
+                    class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-brand-600 rounded-lg font-medium transition-colors">
+                    <span class="mr-3 text-xl">📦</span> Products Listing
+                </a>
+                <a href="/buyer/cart"
+                    class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-brand-600 rounded-lg font-medium transition-colors">
+                    <span class="mr-3 text-xl">🛒</span> My Cart
+                </a>
+                <a href="/buyer/profile"
+                    class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-brand-600 rounded-lg font-medium transition-colors">
+                    <span class="mr-3 text-xl">👤</span> Profile
+                </a>
+                <a href="/buyer/history"
+                    class="flex items-center px-4 py-3 text-brand-700 bg-brand-50 rounded-lg font-medium transition-colors">
+                    <span class="mr-3 text-xl">📥</span> History
+                </a>
+                <a href="/buyer/chat"
+                    class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-brand-600 rounded-lg font-medium transition-colors">
+                    <span class="mr-3 text-xl">💬</span> Chat
+                </a>
+            </nav>
+
+            <div class="p-4 border-t border-gray-100">
+                <button id="logout-btn"
+                    class="w-full flex items-center justify-center px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 rounded-lg font-medium transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    Log Out
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 md:ml-64 p-8 transition-all duration-300">
+            <!-- Header -->
+            <header class="flex justify-between items-center mb-8">
+                <div class="flex items-center gap-4">
+                    <button id="sidebar-toggle" class="md:hidden text-gray-600 hover:text-gray-900 focus:outline-none">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                    <!-- Back Button in Header -->
+                    <a href="/buyer/history"
+                        class="inline-flex items-center text-gray-600 hover:text-brand-600 font-medium transition-colors">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                        </svg>
+                        Back to History
+                    </a>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="bg-white p-2 rounded-full shadow-sm border border-gray-100">
+                        <span class="text-xl">👤</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="max-w-5xl mx-auto">
+                <h2 class="text-2xl font-bold text-gray-800 mb-8 flex items-center gap-2">
+                    <span>📄</span> Order Details
+                </h2>
+
+                <div id="order-details-container">
+                    <!-- Loading State -->
+                    <div class="flex justify-center py-20">
+                        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-600"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const modal = document.getElementById('message-modal');
+        const modalMessage = document.getElementById('modal-message');
+        const modalTitle = document.getElementById('modal-title');
+        const modalContent = document.getElementById('message-modal-content');
+
+        function showModal(message, type) {
+            modalMessage.textContent = message;
+            if (type === 'success') {
+                modalTitle.textContent = 'Success';
+                modalTitle.className = 'text-lg font-bold mb-2 text-green-600';
+                modalContent.className = 'modal-content success';
+            } else {
+                modalTitle.textContent = 'Error';
+                modalTitle.className = 'text-lg font-bold mb-2 text-red-600';
+                modalContent.className = 'modal-content error';
+            }
+            modal.style.display = 'flex';
+            setTimeout(() => {
+                modal.classList.add('show');
+            }, 10);
+        }
+
+        function closeModal() {
+            modal.classList.remove('show');
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 200);
+        }
+
+        // Sidebar Toggle Logic
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const closeSidebar = document.getElementById('close-sidebar');
+
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.remove('-translate-x-full');
+            });
+        }
+
+        if (closeSidebar) {
+            closeSidebar.addEventListener('click', () => {
+                sidebar.classList.add('-translate-x-full');
+            });
+        }
+
+        async function loadOrderDetails() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/login';
+                return;
+            }
+
+            // Get order ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderId = urlParams.get('id');
+
+            if (!orderId) {
+                showModal('Order ID not provided', 'error');
+                setTimeout(() => window.location.href = '/buyer/history', 2000);
+                return;
+            }
+
+            const container = document.getElementById('order-details-container');
+
+            try {
+                const res = await fetch(`/api/buyer/order/${orderId}`, {
+                    headers: {
+                        'x-auth-token': token
+                    }
+                });
+
+                const data = await res.json();
+
+                if (res.ok && data.success && data.order) {
+                    const order = data.order;
+
+                    let statusClass = 'bg-gray-100 text-gray-800';
+                    if (order.status === 'Delivered') statusClass = 'bg-green-100 text-green-800';
+                    else if (order.status === 'Cancelled') statusClass = 'bg-red-100 text-red-800';
+                    else if (order.status === 'Pending') statusClass = 'bg-yellow-100 text-yellow-800';
+
+                    container.innerHTML = `
+            <div class="space-y-6">
+              <!-- Order Info Card -->
+              <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <div class="flex justify-between items-start mb-4">
+                  <div>
+                    <h3 class="text-xl font-bold text-gray-900">Order #${order.orderIdDisplay}</h3>
+                    <p class="text-sm text-gray-500 mt-1">Placed on ${new Date(order.orderDate).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                  </div>
+                  <span class="px-3 py-1 rounded-full text-sm font-medium ${statusClass}">
+                    ${order.status}
+                  </span>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                  <div>
+                    <p class="text-sm text-gray-500">Vendor</p>
+                    <p class="font-medium text-gray-900">${order.vendorId?.name || 'Unknown Vendor'}</p>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-500">Payment Method</p>
+                    <p class="font-medium text-gray-900">${order.paymentMethod || 'COD'}</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Delivery Address -->
+              <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <h4 class="font-semibold text-gray-900 mb-2">Delivery Address</h4>
+                <p class="text-gray-600">${order.deliveryAddress || 'Not provided'}</p>
+              </div>
+
+              <!-- Order Items -->
+              <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <h4 class="font-semibold text-gray-900 mb-4">Order Items</h4>
+                <div class="space-y-4">
+                  ${order.products.map(item => `
+                    <div class="flex justify-between items-center py-3 border-b border-gray-100 last:border-0">
+                      <div class="flex items-center gap-4 flex-1">
+                        <div class="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 bg-gray-50">
+                            <img src="${item.productId?.image || 'https://placehold.co/64x64?text=No+Image'}" 
+                                 alt="${item.productId?.name}" 
+                                 class="h-full w-full object-cover object-center"
+                                 onerror="this.src='https://placehold.co/64x64?text=No+Image'">
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-900">${item.productId?.name || 'Product'}</p>
+                            <p class="text-sm text-gray-500">Quantity: ${item.quantity} × ₹${item.priceAtOrder?.toFixed(2) || '0.00'}</p>
+                        </div>
+                      </div>
+                      <p class="font-semibold text-gray-900">₹${((item.quantity || 0) * (item.priceAtOrder || 0)).toFixed(2)}</p>
+                    </div>
+                  `).join('')}
+                </div>
+                
+                <div class="mt-6 pt-4 border-t border-gray-200">
+                  <div class="flex justify-between items-center">
+                    <span class="text-lg font-bold text-gray-900">Total Amount</span>
+                    <span class="text-2xl font-bold text-brand-600">₹${order.totalAmount?.toFixed(2) || '0.00'}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+                } else {
+                    container.innerHTML = `
+            <div class="bg-white p-12 rounded-xl shadow-sm border border-gray-100 text-center">
+              <div class="text-6xl mb-4">📦</div>
+              <h3 class="text-xl font-bold text-gray-900 mb-2">Order Not Found</h3>
+              <p class="text-gray-500 mb-6">${data.message || 'Unable to load order details'}</p>
+              <a href="/buyer/history" class="inline-block bg-brand-600 text-white px-6 py-2 rounded-lg hover:bg-brand-700 transition-colors">
+                Back to Orders
+              </a>
+            </div>
+          `;
+                }
+            } catch (err) {
+                console.error('Error loading order details:', err);
+                container.innerHTML = `
+          <div class="bg-white p-12 rounded-xl shadow-sm border border-gray-100 text-center">
+            <div class="text-6xl mb-4">❌</div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">Error</h3>
+            <p class="text-gray-500 mb-6">Failed to load order details</p>
+            <a href="/buyer/history" class="inline-block bg-brand-600 text-white px-6 py-2 rounded-lg hover:bg-brand-700 transition-colors">
+              Back to Orders
+            </a>
+          </div>
+        `;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadOrderDetails();
+
+            document.getElementById('logout-btn').addEventListener('click', () => {
+                localStorage.clear();
+                window.location.href = '/login';
+            });
+        });
+    </script>
+</body>
+
+</html>

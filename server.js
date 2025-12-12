@@ -22,8 +22,8 @@ app.use(express.json()); // Allows us to get data in req.body
 const mongoURI = process.env.MONGO_URI;
 
 mongoose.connect(mongoURI)
-.then(() => console.log('MongoDB connected...'))
-.catch(err => console.error('MongoDB connection error:', err));
+    .then(() => console.log('MongoDB connected...'))
+    .catch(err => console.error('MongoDB connection error:', err));
 
 // Define routes
 // The authentication routes for signup and login
@@ -82,6 +82,10 @@ app.get('/buyer/history', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'buyer-history.html'));
 });
 
+app.get('/buyer/order-details', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'buyer-order-details.html'));
+});
+
 app.get('/buyer/chat', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'buyer-chat.html'));
 });
@@ -111,6 +115,10 @@ app.get('/vendor/inventory', (req, res) => {
 
 app.get('/vendor/orders', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'vendor-orders.html'));
+});
+
+app.get('/vendor/order-details', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'vendor-order-details.html'));
 });
 
 app.get('/vendor/profile', (req, res) => {
