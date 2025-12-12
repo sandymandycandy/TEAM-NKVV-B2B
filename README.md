@@ -67,5 +67,9 @@ A robust application connecting vendors and buyers, facilitating seamless wholes
 *   `punjabwholesale@gmail.com`
 *   `kolkatagrocers@business.com`
 
-## License
-[License Name]
+
+## Team Members
+*   **S SURAJ**
+*   **S SANDEEP KUMAR**
+*   **GROWISH CHANDRAN**
+*   **SAI DEEVAN**
