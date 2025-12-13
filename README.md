@@ -71,5 +71,5 @@ A robust application connecting vendors and buyers, facilitating seamless wholes
 ## Team Members
 *   **S SURAJ**
 *   **S SANDEEP KUMAR**
-*   **GROWISH CHANDRAN**
-*   **SAI DEEVAN**
+*   **S GOWRISH CHANDRAN**
+*   **BAVIRI SETTY SAI DEEVAN**
