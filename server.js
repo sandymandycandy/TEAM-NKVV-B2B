@@ -20,10 +20,13 @@ app.use(express.json()); // Allows us to get data in req.body
 
 // Connect to MongoDB
 const mongoURI = process.env.MONGO_URI;
-
-mongoose.connect(mongoURI)
-    .then(() => console.log('MongoDB connected...'))
-    .catch(err => console.error('MongoDB connection error:', err));
+if (!mongoURI) {
+    console.error('WARNING: MONGO_URI environment variable is not defined!');
+} else {
+    mongoose.connect(mongoURI)
+        .then(() => console.log('MongoDB connected...'))
+        .catch(err => console.error('MongoDB connection error:', err));
+}
 
 // Define routes
 // The authentication routes for signup and login
@@ -135,7 +138,9 @@ app.get('/vendor/chat', (req, res) => {
 
 
 // Start the HTTP server (used by Socket.io)
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+    server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+}
 
 // Setup Socket.io for realtime chat
 const { Server } = require('socket.io');
@@ -190,3 +195,5 @@ io.on('connection', (socket) => {
         socket.leave(userId);
     });
 });
+
+module.exports = app;

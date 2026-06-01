@@ -1,318 +1,316 @@
-          <!DOCTYPE html>
-          <html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 
-          <head>
-            <meta charset="UTF-8" />
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>My Cart - VendorConnect</title>
-            <script src="https://cdn.tailwindcss.com"></script>
-            <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-              rel="stylesheet">
-            <script>
-              tailwind.config = {
-                theme: {
-                  extend: {
-                    fontFamily: {
-                      sans: ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                      brand: {
-                        50: '#f0f9ff',
-                        100: '#e0f2fe',
-                        200: '#bae6fd',
-                        300: '#7dd3fc',
-                        400: '#38bdf8',
-                        500: '#0ea5e9',
-                        600: '#0284c7',
-                        700: '#0369a1',
-                        800: '#075985',
-                        900: '#0c4a6e',
-                      }
-                    }
-                  }
-                }
-              }
-            </script>
-            <style>
-              /* Styles for the modal */
-              .modal {
-                position: fixed;
-                z-index: 1000;
-                left: 0;
-                top: 0;
-                width: 100%;
-                height: 100%;
-                overflow: auto;
-                background-color: rgba(0, 0, 0, 0.5);
-                backdrop-filter: blur(4px);
-                display: none;
-                justify-content: center;
-                align-items: center;
-              }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Cart - VendorConnect</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              300: '#7dd3fc',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Styles for the modal */
+    .modal {
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+    }
 
-              .modal-content {
-                background-color: #fefefe;
-                padding: 24px;
-                border-radius: 16px;
-                max-width: 400px;
-                width: 90%;
-                text-align: center;
-                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-                transform: scale(0.95);
-                transition: transform 0.2s;
-              }
+    .modal-content {
+      background-color: #fefefe;
+      padding: 24px;
+      border-radius: 16px;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      transform: scale(0.95);
+      transition: transform 0.2s;
+    }
 
-              .modal.show .modal-content {
-                transform: scale(1);
-              }
+    .modal.show .modal-content {
+      transform: scale(1);
+    }
 
-              .modal-content.success {
-                border-left: 4px solid #10b981;
-              }
+    .modal-content.success {
+      border-left: 4px solid #10b981;
+    }
 
-              .modal-content.error {
-                border-left: 4px solid #ef4444;
-              }
+    .modal-content.error {
+      border-left: 4px solid #ef4444;
+    }
 
-              .modal-content .confirm-buttons {
-                display: flex;
-                justify-content: center;
-                gap: 12px;
-                margin-top: 24px;
-              }
-            </style>
-          </head>
+    .modal-content .confirm-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 24px;
+    }
+  </style>
+</head>
 
-          <body class="bg-gray-50 font-sans text-gray-900">
+<body class="bg-gray-50 font-sans text-gray-900">
 
-            <!-- Message/Confirm Modal -->
-            <div id="message-modal" class="modal">
-              <div id="message-modal-content" class="modal-content">
-                <h3 id="modal-title" class="text-lg font-bold mb-2">Notification</h3>
-                <p id="modal-message" class="text-gray-600 mb-6"></p>
-                <div id="modal-buttons">
-                  <button
-                    class="w-full bg-brand-600 hover:bg-brand-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
-                    onclick="closeModal()">Close</button>
-                </div>
-              </div>
-            </div>
+  <!-- Message/Confirm Modal -->
+  <div id="message-modal" class="modal">
+    <div id="message-modal-content" class="modal-content">
+      <h3 id="modal-title" class="text-lg font-bold mb-2">Notification</h3>
+      <p id="modal-message" class="text-gray-600 mb-6"></p>
+      <div id="modal-buttons">
+        <button
+          class="w-full bg-brand-600 hover:bg-brand-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+          onclick="closeModal()">Close</button>
+      </div>
+    </div>
+  </div>
 
-            <div class="flex min-h-screen">
-              <!-- Sidebar -->
-              <aside
-                class="w-64 bg-white border-r border-gray-200 flex flex-col fixed h-full z-10 transition-transform duration-300 ease-in-out transform -translate-x-full md:translate-x-0"
-                id="sidebar">
-                <div class="p-6 border-b border-gray-100">
-                  <h1 class="text-2xl font-bold text-brand-600 tracking-tight">DASHBOARD</h1>
-                  <p class="text-sm text-gray-500 mt-1">Buyer Portal</p>
-                </div>
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside
+      class="w-64 bg-white border-r border-gray-200 flex flex-col fixed h-full z-10 transition-transform duration-300 ease-in-out transform -translate-x-full md:translate-x-0"
+      id="sidebar">
+      <div class="p-6 border-b border-gray-100">
+        <h1 class="text-2xl font-bold text-brand-600 tracking-tight">DASHBOARD</h1>
+        <p class="text-sm text-gray-500 mt-1">Buyer Portal</p>
+      </div>
 
-                <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
-                  <a href="/buyer-dashboard"
-                    class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-brand-600 rounded-lg font-medium transition-colors">
-                    <span class="mr-3 text-xl">🏠</span> Home
-                  </a>
-                  <a href="/buyer/products"
-                    class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-brand-600 rounded-lg font-medium transition-colors">
-                    <span class="mr-3 text-xl">📦</span> Products Listing
-                  </a>
-                  <a href="/buyer/cart"
-                    class="flex items-center px-4 py-3 text-brand-700 bg-brand-50 rounded-lg font-medium transition-colors">
-                    <span class="mr-3 text-xl">🛒</span> My Cart
-                  </a>
-                  <a href="/buyer/profile"
-                    class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-brand-600 rounded-lg font-medium transition-colors">
-                    <span class="mr-3 text-xl">👤</span> Profile
-                  </a>
-                  <a href="/buyer/history"
-                    class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-brand-600 rounded-lg font-medium transition-colors">
-                    <span class="mr-3 text-xl">📥</span> History
-                  </a>
-                  <a href="/buyer/chat"
-                    class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-brand-600 rounded-lg font-medium transition-colors">
-                    <span class="mr-3 text-xl">💬</span> Chat
-                  </a>
-                </nav>
+      <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+        <a href="/buyer-dashboard"
+          class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-brand-600 rounded-lg font-medium transition-colors">
+          <span class="mr-3 text-xl">🏠</span> Home
+        </a>
+        <a href="/buyer/products"
+          class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-brand-600 rounded-lg font-medium transition-colors">
+          <span class="mr-3 text-xl">📦</span> Products Listing
+        </a>
+        <a href="/buyer/cart"
+          class="flex items-center px-4 py-3 text-brand-700 bg-brand-50 rounded-lg font-medium transition-colors">
+          <span class="mr-3 text-xl">🛒</span> My Cart
+        </a>
+        <a href="/buyer/profile"
+          class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-brand-600 rounded-lg font-medium transition-colors">
+          <span class="mr-3 text-xl">👤</span> Profile
+        </a>
+        <a href="/buyer/history"
+          class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-brand-600 rounded-lg font-medium transition-colors">
+          <span class="mr-3 text-xl">📥</span> History
+        </a>
+        <a href="/buyer/chat"
+          class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-brand-600 rounded-lg font-medium transition-colors">
+          <span class="mr-3 text-xl">💬</span> Chat
+        </a>
+      </nav>
 
-                <div class="p-4 border-t border-gray-100">
-                  <button id="logout-btn"
-                    class="w-full flex items-center justify-center px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 rounded-lg font-medium transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
-                      stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                    </svg>
-                    Log Out
-                  </button>
-                </div>
-              </aside>
+      <div class="p-4 border-t border-gray-100">
+        <button id="logout-btn"
+          class="w-full flex items-center justify-center px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 rounded-lg font-medium transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          Log Out
+        </button>
+      </div>
+    </aside>
 
-              <!-- Main Content -->
-              <main class="flex-1 md:ml-64 p-8 transition-all duration-300">
-                <div class="flex justify-between items-center mb-8">
-                  <div>
-                    <h2 class="text-2xl font-bold text-gray-800">My Cart</h2>
-                    <p class="text-gray-500">Review your selected items before checkout.</p>
-                  </div>
-                  <button id="checkout-btn"
-                    class="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2.5 rounded-lg shadow-sm shadow-green-200 transition-all transform hover:-translate-y-0.5 flex items-center">
-                    <span>💳</span> <span class="ml-2">Checkout</span>
-                  </button>
-                </div>
+    <!-- Main Content -->
+    <main class="flex-1 md:ml-64 p-8 transition-all duration-300">
+      <div class="flex justify-between items-center mb-8">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-800">My Cart</h2>
+          <p class="text-gray-500">Review your selected items before checkout.</p>
+        </div>
+        <button id="checkout-btn"
+          class="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2.5 rounded-lg shadow-sm shadow-green-200 transition-all transform hover:-translate-y-0.5 flex items-center">
+          <span>💳</span> <span class="ml-2">Checkout</span>
+        </button>
+      </div>
 
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                  <div id="cart-container" class="divide-y divide-gray-100">
-                    <!-- Cart items will be loaded here -->
-                    <div class="p-12 text-center text-gray-500">
-                      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-brand-600 mx-auto mb-4"></div>
-                      <p>Loading cart...</p>
-                    </div>
-                  </div>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div id="cart-container" class="divide-y divide-gray-100">
+          <!-- Cart items will be loaded here -->
+          <div class="p-12 text-center text-gray-500">
+            <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-brand-600 mx-auto mb-4"></div>
+            <p>Loading cart...</p>
+          </div>
+        </div>
 
-                  <div id="cart-total"
-                    class="bg-gray-50 p-6 flex justify-end items-center border-t border-gray-100 hidden">
-                    <div class="text-right">
-                      <p class="text-sm text-gray-500 mb-1">Total Amount</p>
-                      <p class="text-3xl font-bold text-gray-900">₹0.00</p>
-                    </div>
-                  </div>
-                </div>
-              </main>
-            </div>
+        <div id="cart-total" class="bg-gray-50 p-6 flex justify-end items-center border-t border-gray-100 hidden">
+          <div class="text-right">
+            <p class="text-sm text-gray-500 mb-1">Total Amount</p>
+            <p class="text-3xl font-bold text-gray-900">₹0.00</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
 
-            <script>
-              // Message Modal Functions
-              const modal = document.getElementById('message-modal');
-              const modalMessage = document.getElementById('modal-message');
-              const modalTitle = document.getElementById('modal-title');
-              const modalContent = document.getElementById('message-modal-content');
-              const modalButtons = document.getElementById('modal-buttons');
+  <script>
+    // Message Modal Functions
+    const modal = document.getElementById('message-modal');
+    const modalMessage = document.getElementById('modal-message');
+    const modalTitle = document.getElementById('modal-title');
+    const modalContent = document.getElementById('message-modal-content');
+    const modalButtons = document.getElementById('modal-buttons');
 
-              function showModal(message, type, onConfirm) {
-                modalMessage.textContent = message;
+    function showModal(message, type, onConfirm) {
+      modalMessage.textContent = message;
 
-                if (type === 'success') {
-                  modalTitle.textContent = 'Success';
-                  modalTitle.className = 'text-lg font-bold mb-2 text-green-600';
-                  modalContent.className = 'modal-content success';
-                } else if (type === 'error') {
-                  modalTitle.textContent = 'Error';
-                  modalTitle.className = 'text-lg font-bold mb-2 text-red-600';
-                  modalContent.className = 'modal-content error';
-                } else {
-                  modalTitle.textContent = 'Confirm';
-                  modalTitle.className = 'text-lg font-bold mb-2 text-gray-800';
-                  modalContent.className = 'modal-content';
-                }
+      if (type === 'success') {
+        modalTitle.textContent = 'Success';
+        modalTitle.className = 'text-lg font-bold mb-2 text-green-600';
+        modalContent.className = 'modal-content success';
+      } else if (type === 'error') {
+        modalTitle.textContent = 'Error';
+        modalTitle.className = 'text-lg font-bold mb-2 text-red-600';
+        modalContent.className = 'modal-content error';
+      } else {
+        modalTitle.textContent = 'Confirm';
+        modalTitle.className = 'text-lg font-bold mb-2 text-gray-800';
+        modalContent.className = 'modal-content';
+      }
 
-                modalButtons.innerHTML = ''; // Clear existing buttons
-                if (onConfirm) {
-                  modalButtons.className = 'confirm-buttons';
-                  modalButtons.innerHTML = `
+      modalButtons.innerHTML = ''; // Clear existing buttons
+      if (onConfirm) {
+        modalButtons.className = 'confirm-buttons';
+        modalButtons.innerHTML = `
             <button class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg font-medium transition-colors" onclick="handleConfirm(true)">Yes, Remove</button>
             <button class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-2 rounded-lg font-medium transition-colors" onclick="handleConfirm(false)">Cancel</button>
         `;
-                  window.confirmAction = onConfirm; // Store the callback
-                } else {
-                  modalButtons.className = '';
-                  modalButtons.innerHTML = `<button class="w-full bg-brand-600 hover:bg-brand-700 text-white font-medium py-2 px-4 rounded-lg transition-colors" onclick="closeModal()">Close</button>`;
-                }
+        window.confirmAction = onConfirm; // Store the callback
+      } else {
+        modalButtons.className = '';
+        modalButtons.innerHTML = `<button class="w-full bg-brand-600 hover:bg-brand-700 text-white font-medium py-2 px-4 rounded-lg transition-colors" onclick="closeModal()">Close</button>`;
+      }
 
-                modal.style.display = 'flex';
-                setTimeout(() => {
-                  modal.classList.add('show');
-                }, 10);
+      modal.style.display = 'flex';
+      setTimeout(() => {
+        modal.classList.add('show');
+      }, 10);
+    }
+
+    function closeModal() {
+      modal.classList.remove('show');
+      setTimeout(() => {
+        modal.style.display = 'none';
+      }, 200);
+    }
+
+    function handleConfirm(isConfirmed) {
+      closeModal();
+      if (window.confirmAction) {
+        window.confirmAction(isConfirmed);
+        window.confirmAction = null; // Clear the callback
+      }
+    }
+
+    function editQty(id) {
+      document.getElementById(`qty-label-${id}`).classList.add('hidden');
+      document.getElementById(`qty-edit-${id}`).classList.remove('hidden');
+    }
+
+    async function saveQty(id) {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        window.location.href = '/login';
+        return;
+      }
+
+      const newQty = parseInt(document.getElementById(`qty-input-${id}`).value, 10);
+      if (isNaN(newQty) || newQty <= 0) {
+        showModal('Please enter a valid quantity.', 'error');
+        return;
+      }
+      try {
+        const response = await fetch(`/api/buyer/cart/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-auth-token': token
+          },
+          body: JSON.stringify({
+            quantity: newQty
+          })
+        });
+        const result = await response.json();
+        if (response.ok && result.success) {
+          await loadCart();
+        } else {
+          showModal('❌ Failed to update quantity: ' + (result.message || ' Unknown error'), 'error');
+        }
+      } catch (err) {
+        console.error('Error updating quantity:', err);
+        showModal('An unexpected error occurred.', 'error');
+      }
+    }
+
+    async function loadCart() {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        window.location.href = '/login';
+        return;
+      }
+      const container = document.getElementById('cart-container');
+      const totalDiv = document.getElementById('cart-total');
+      const totalAmountEl = totalDiv.querySelector('p.text-3xl');
+      try {
+        const res = await fetch('/api/buyer/cart', {
+          headers: {
+            'x-auth-token': token
+          }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.success && Array.isArray(data.data) && data.data.length > 0) {
+            container.innerHTML = '';
+            let total = 0;
+
+            data.data.forEach(item => {
+              if (!item.productId) {
+                console.warn(`Cart item ${item._id} has no linked product.`);
+                return;
               }
 
-              function closeModal() {
-                modal.classList.remove('show');
-                setTimeout(() => {
-                  modal.style.display = 'none';
-                }, 200);
-              }
+              const subtotal = item.productId.price * item.quantity;
+              total += subtotal;
 
-              function handleConfirm(isConfirmed) {
-                closeModal();
-                if (window.confirmAction) {
-                  window.confirmAction(isConfirmed);
-                  window.confirmAction = null; // Clear the callback
-                }
-              }
-
-              function editQty(id) {
-                document.getElementById(`qty-label-${id}`).classList.add('hidden');
-                document.getElementById(`qty-edit-${id}`).classList.remove('hidden');
-              }
-
-              async function saveQty(id) {
-                const token = localStorage.getItem('token');
-                if (!token) {
-                  window.location.href = '/login';
-                  return;
-                }
-
-                const newQty = parseInt(document.getElementById(`qty-input-${id}`).value, 10);
-                if (isNaN(newQty) || newQty <= 0) {
-                  showModal('Please enter a valid quantity.', 'error');
-                  return;
-                }
-                try {
-                  const response = await fetch(`/api/buyer/cart/${id}`, {
-                    method: 'PUT',
-                    headers: {
-                      'Content-Type': 'application/json',
-                      'x-auth-token': token
-                    },
-                    body: JSON.stringify({
-                      quantity: newQty
-                    })
-                  });
-                  const result = await response.json();
-                  if (response.ok && result.success) {
-                    await loadCart();
-                  } else {
-                    showModal('❌ Failed to update quantity: ' + (result.message || ' Unknown error'), 'error');
-                  }
-                } catch (err) {
-                  console.error('Error updating quantity:', err);
-                  showModal('An unexpected error occurred.', 'error');
-                }
-              }
-
-              async function loadCart() {
-                const token = localStorage.getItem('token');
-                if (!token) {
-                  window.location.href = '/login';
-                  return;
-                }
-                const container = document.getElementById('cart-container');
-                const totalDiv = document.getElementById('cart-total');
-                const totalAmountEl = totalDiv.querySelector('p.text-3xl');
-                try {
-                  const res = await fetch('/api/buyer/cart', {
-                    headers: {
-                      'x-auth-token': token
-                    }
-                  });
-                  if (res.ok) {
-                    const data = await res.json();
-                    if (data && data.success && Array.isArray(data.data) && data.data.length > 0) {
-                      container.innerHTML = '';
-                      let total = 0;
-
-                      data.data.forEach(item => {
-                        if (!item.productId) {
-                          console.warn(`Cart item ${item._id} has no linked product.`);
-                          return;
-                        }
-
-                        const subtotal = item.productId.price * item.quantity;
-                        total += subtotal;
-
-                        const row = document.createElement('div');
-                        row.className = 'p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-gray-50 transition-colors';
-                        row.innerHTML = `
+              const row = document.createElement('div');
+              row.className = 'p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-gray-50 transition-colors';
+              row.innerHTML = `
               <div class="flex items-center gap-4 flex-1">
                 <div class="h-16 w-16 bg-gray-100 rounded-lg flex items-center justify-center text-2xl">📦</div>
                 <div>
@@ -348,13 +346,13 @@
                 </button>
               </div>
               `;
-                        container.appendChild(row);
-                      });
+              container.appendChild(row);
+            });
 
-                      totalAmountEl.innerText = `₹${total.toFixed(2)}`;
-                      totalDiv.classList.remove('hidden');
-                    } else {
-                      container.innerHTML = `
+            totalAmountEl.innerText = `₹${total.toFixed(2)}`;
+            totalDiv.classList.remove('hidden');
+          } else {
+            container.innerHTML = `
               <div class="p-12 text-center text-gray-500">
                 <div class="text-6xl mb-4">🛒</div>
                 <h3 class="text-xl font-medium text-gray-900">Your cart is empty</h3>
@@ -364,65 +362,65 @@
                   Products</a>
               </div>
               `;
-                      totalDiv.classList.add('hidden');
-                    }
-                  } else {
-                    console.error('API failed');
-                    showModal('Failed to load cart.', 'error');
-                  }
-                } catch (err) {
-                  console.error('Error loading cart:', err);
-                  showModal('Error fetching cart data.', 'error');
-                }
+            totalDiv.classList.add('hidden');
+          }
+        } else {
+          console.error('API failed');
+          showModal('Failed to load cart.', 'error');
+        }
+      } catch (err) {
+        console.error('Error loading cart:', err);
+        showModal('Error fetching cart data.', 'error');
+      }
+    }
+
+    async function removeItem(id) {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        window.location.href = '/login';
+        return;
+      }
+
+      showModal('Are you sure you want to remove this item?', 'confirm', async (confirmed) => {
+        if (confirmed) {
+          try {
+            const res = await fetch(`/api/buyer/cart/${id}`, {
+              method: 'DELETE',
+              headers: {
+                'x-auth-token': token
               }
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+              await loadCart();
+            } else {
+              showModal('Failed to remove: ' + (data.message || 'Unknown error'), 'error');
+            }
+          } catch (err) {
+            console.error('Error removing item:', err);
+            showModal('An unexpected error occurred.', 'error');
+          }
+        }
+      });
+    }
 
-              async function removeItem(id) {
-                const token = localStorage.getItem('token');
-                if (!token) {
-                  window.location.href = '/login';
-                  return;
-                }
+    document.addEventListener('DOMContentLoaded', loadCart);
 
-                showModal('Are you sure you want to remove this item?', 'confirm', async (confirmed) => {
-                  if (confirmed) {
-                    try {
-                      const res = await fetch(`/api/buyer/cart/${id}`, {
-                        method: 'DELETE',
-                        headers: {
-                          'x-auth-token': token
-                        }
-                      });
-                      const data = await res.json();
-                      if (res.ok && data.success) {
-                        await loadCart();
-                      } else {
-                        showModal('Failed to remove: ' + (data.message || 'Unknown error'), 'error');
-                      }
-                    } catch (err) {
-                      console.error('Error removing item:', err);
-                      showModal('An unexpected error occurred.', 'error');
-                    }
-                  }
-                });
-              }
+    document.getElementById('checkout-btn').addEventListener('click', () => {
+      const cartContainer = document.getElementById('cart-container');
+      if (cartContainer.children.length === 0 || cartContainer.textContent.includes('Your cart is empty')) {
+        showModal('Your cart is empty. Please add items before checking out.', 'error');
+      } else {
+        window.location.href = '/buyer/checkout';
+      }
+    });
 
-              document.addEventListener('DOMContentLoaded', loadCart);
+    // Logout functionality
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      localStorage.clear();
+      window.location.href = '/login';
+    });
+  </script>
+</body>
 
-              document.getElementById('checkout-btn').addEventListener('click', () => {
-                const cartContainer = document.getElementById('cart-container');
-                if (cartContainer.children.length === 0 || cartContainer.textContent.includes('Your cart is empty')) {
-                  showModal('Your cart is empty. Please add items before checking out.', 'error');
-                } else {
-                  window.location.href = '/buyer/checkout';
-                }
-              });
-
-              // Logout functionality
-              document.getElementById('logout-btn').addEventListener('click', () => {
-                localStorage.clear();
-                window.location.href = '/login';
-              });
-            </script>
-          </body>
-
-          </html>
+</html>
